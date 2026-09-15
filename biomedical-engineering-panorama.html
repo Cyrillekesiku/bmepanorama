@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Biomedical Engineering — Full Course Panorama</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sidebar-w: 320px;
+  --bg:#ffffff;
+  --sidebar-bg:#f8f9fb;
+  --border:#e3e6ea;
+  --text:#1a1d23;
+  --muted:#5b6270;
+  --accent:#0a5fb4;
+  --accent-dark:#08417c;
+  --accent-soft:#e8f1fc;
+  --accent-2:#0f9d78;
+  --accent-2-soft:#e5f7f1;
+  --code-bg:#f1f3f5;
+  --radius:10px;
+  --radius-lg:16px;
+  --shadow-sm:0 1px 2px rgba(16,24,40,.06);
+  --shadow-md:0 6px 20px rgba(16,24,40,.08);
+  --shadow-lg:0 12px 32px rgba(16,24,40,.12);
+  /* aliases used by the systemic-map blocks, tied into the main palette
+     instead of floating on unstyled fallbacks */
+  --line:var(--border);
+  --soft:var(--accent-soft);
+  --panel:#ffffff;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:"Inter","Segoe UI",Helvetica,Arial,sans-serif,"Trebuchet MS";
+  color:var(--text);
+  background:var(--bg);
+  display:flex;
+  flex-direction:column;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  text-rendering:optimizeLegibility;
+}
+#app-shell{display:flex; flex:1; min-height:0;}
+h1,h2,h3,h4{font-family:"Inter","Segoe UI",Helvetica,Arial,sans-serif,"Trebuchet MS"; letter-spacing:-.01em;}
+::selection{background:var(--accent-2); color:#fff;}
+a{-webkit-tap-highlight-color:transparent;}
+a,button,input{transition:color .15s ease, background-color .15s ease, border-color .15s ease, box-shadow .15s ease, transform .15s ease;}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px;}
+
+/* ---------- SIDEBAR ---------- */
+#sidebar{
+  width:var(--sidebar-w);
+  min-width:var(--sidebar-w);
+  background:var(--sidebar-bg);
+  border-right:1px solid var(--border);
+  height:100vh;
+  position:sticky;
+  top:0;
+  overflow-y:auto;
+  padding-bottom:40px;
+  scrollbar-width:thin;
+  scrollbar-color:#c7cdd6 transparent;
+}
+#sidebar::-webkit-scrollbar{width:8px;}
+#sidebar::-webkit-scrollbar-track{background:transparent;}
+#sidebar::-webkit-scrollbar-thumb{background:#c7cdd6; border-radius:8px;}
+#sidebar::-webkit-scrollbar-thumb:hover{background:#aab1bd;}
+.brand{
+  padding:20px 20px 14px 20px;
+  border-bottom:1px solid var(--border);
+  position:sticky;
+  top:0;
+  background:linear-gradient(180deg,#ffffff 0%,var(--sidebar-bg) 100%);
+  z-index:5;
+}
+.brand h1{
+  font-size:16.5px;
+  font-weight:800;
+  margin:0 0 4px 0;
+  line-height:1.3;
+  letter-spacing:-.015em;
+  background:linear-gradient(90deg,var(--accent-dark),var(--accent));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.brand p{
+  margin:0;
+  font-size:12px;
+  color:var(--muted);
+  letter-spacing:.01em;
+}
+#search{
+  width:100%;
+  margin-top:12px;
+  padding:8px 12px;
+  font-size:13px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:#fff;
+  box-shadow:var(--shadow-sm);
+}
+#search:focus{
+  outline:none;
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px var(--accent-soft);
+}
+#search::placeholder{color:#9aa1ac;}
+nav#tree{
+  padding:10px 8px;
+}
+.dom{
+  margin-bottom:2px;
+}
+.dom > .dom-toggle{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  width:100%;
+  text-align:left;
+  background:none;
+  border:none;
+  cursor:pointer;
+  padding:7px 10px;
+  font-size:13.5px;
+  font-weight:600;
+  color:var(--text);
+  border-radius:6px;
+}
+.dom > .dom-toggle:hover{background:var(--accent-soft);}
+.dom.active > .dom-toggle{background:var(--accent-soft); color:var(--accent); box-shadow:inset 2px 0 0 var(--accent);}
+.dom-toggle .num{
+  color:var(--accent);
+  font-variant-numeric:tabular-nums;
+  font-weight:700;
+  min-width:22px;
+  font-size:12px;
+}
+.dom-toggle .chevron{
+  margin-left:auto;
+  font-size:10px;
+  color:var(--muted);
+  transition:transform .15s ease;
+}
+.dom.open > .dom-toggle .chevron{transform:rotate(90deg);}
+.sublist{
+  list-style:none;
+  margin:0;
+  padding:0 0 4px 30px;
+  display:none;
+}
+.dom.open .sublist{display:block;}
+.sublist li a{
+  display:block;
+  padding:5px 8px;
+  font-size:12.5px;
+  color:var(--muted);
+  text-decoration:none;
+  border-radius:5px;
+  border-left:2px solid transparent;
+}
+.sublist li a:hover{color:var(--accent); background:var(--accent-soft);}
+.sublist li a.active{
+  color:var(--accent);
+  border-left:2px solid var(--accent);
+  background:var(--accent-soft);
+  font-weight:600;
+}
+
+/* ---------- MAIN ---------- */
+#main{
+  flex:1;
+  min-width:0;
+  padding:36px 48px 80px 48px;
+  max-width:980px;
+}
+.breadcrumb{
+  font-size:12.5px;
+  color:var(--muted);
+  margin-bottom:14px;
+}
+.breadcrumb a{color:var(--accent); text-decoration:none;}
+.badge{
+  display:inline-block;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  color:var(--accent);
+  background:var(--accent-soft);
+  padding:3px 9px;
+  border-radius:999px;
+  margin-bottom:10px;
+}
+h1.page-title{
+  font-size:30px;
+  margin:4px 0 6px 0;
+  line-height:1.25;
+}
+.subtitle{
+  font-size:15px;
+  color:var(--muted);
+  margin:0 0 24px 0;
+}
+.hero-img{
+  width:100%;
+  max-height:320px;
+  object-fit:cover;
+  border-radius:var(--radius-lg);
+  border:1px solid var(--border);
+  margin-bottom:26px;
+  background:#eee;
+  box-shadow:var(--shadow-md);
+}
+.section-block{margin-bottom:28px;}
+.section-block h2{
+  font-size:18px;
+  border-bottom:1px solid var(--border);
+  padding-bottom:6px;
+  margin:0 0 12px 0;
+}
+.section-block h3{
+  font-size:15px;
+  margin:18px 0 6px 0;
+}
+.section-block p{
+  font-size:14.5px;
+  line-height:1.7;
+  color:#2a2e35;
+  margin:0 0 10px 0;
+}
+.tag-row{margin-bottom:6px;}
+.tag{
+  display:inline-block;
+  font-size:11.5px;
+  background:var(--code-bg);
+  color:#333;
+  padding:3px 9px;
+  border-radius:6px;
+  margin:0 6px 6px 0;
+  font-family:Consolas,monospace;
+  border:1px solid #e6e8eb;
+}
+.card-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+  gap:14px;
+  margin-top:8px;
+}
+.card{
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  overflow:hidden;
+  text-decoration:none;
+  color:var(--text);
+  background:#fff;
+  box-shadow:var(--shadow-sm);
+  transition:box-shadow .18s ease, transform .18s ease, border-color .18s ease;
+  display:flex;
+  flex-direction:column;
+}
+.card:hover{box-shadow:var(--shadow-md); transform:translateY(-3px); border-color:#cfd7e0;}
+.card img{width:100%; height:110px; object-fit:cover; background:#eee;}
+.card .card-body{padding:10px 12px 14px 12px;}
+.card .card-body .k{font-size:10.5px; color:var(--accent); font-weight:700; text-transform:uppercase;}
+.card .card-body h4{font-size:13.5px; margin:4px 0 4px 0; line-height:1.3;}
+.card .card-body p{font-size:12px; color:var(--muted); margin:0; line-height:1.45;}
+
+.syn-box{
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+  background:var(--accent-soft);
+  border:1px solid #cfe0f6;
+  border-left:4px solid var(--accent);
+  border-radius:var(--radius);
+  padding:14px 16px;
+  margin:0 0 24px 0;
+  box-shadow:var(--shadow-sm);
+}
+.syn-box .syn-icon{
+  font-size:18px;
+  line-height:1.3;
+}
+.syn-box .syn-label{
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin:0 0 4px 0;
+}
+.syn-box p{
+  margin:0;
+  font-size:14px;
+  line-height:1.6;
+  color:#1a1d23;
+}
+.overview-card .syn-mini{
+  display:block;
+  font-size:11.5px;
+  color:var(--accent);
+  margin-top:8px;
+  padding-top:8px;
+  border-top:1px dashed var(--border);
+  line-height:1.4;
+}
+.card .card-body .syn-mini{
+  display:block;
+  font-size:11px;
+  color:var(--accent);
+  margin-top:6px;
+  padding-top:6px;
+  border-top:1px dashed var(--border);
+  line-height:1.4;
+}
+img.async-img{background:#eee linear-gradient(90deg,#eee 25%,#f4f4f4 37%,#eee 63%); background-size:400% 100%; animation:imgshimmer 1.4s ease infinite;}
+@keyframes imgshimmer{0%{background-position:100% 0;}100%{background-position:0 0;}}
+
+.sub-figure{
+  display:grid;
+  grid-template-columns:280px 1fr;
+  gap:22px;
+  align-items:flex-start;
+  margin-bottom:8px;
+}
+.sub-figure img{
+  width:100%;
+  border-radius:var(--radius);
+  border:1px solid var(--border);
+  object-fit:cover;
+  height:180px;
+  background:#eee;
+}
+@media (max-width:720px){
+  .sub-figure{grid-template-columns:1fr;}
+  .sub-figure img{height:200px;}
+}
+
+.pager{
+  display:flex;
+  justify-content:space-between;
+  margin-top:44px;
+  padding-top:18px;
+  border-top:1px solid var(--border);
+  gap:12px;
+}
+.pager a{
+  flex:1;
+  text-decoration:none;
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:10px 14px;
+  color:var(--text);
+  font-size:13px;
+  transition:border-color .15s ease, background-color .15s ease, transform .15s ease;
+}
+.pager a:hover{border-color:var(--accent); background:var(--accent-soft); transform:translateY(-1px);}
+.pager a.next{text-align:right; margin-left:auto;}
+.pager .dir{display:block; font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin-bottom:2px;}
+
+.overview-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:16px;
+  margin-top:10px;
+}
+.overview-card{
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:16px;
+  text-decoration:none;
+  color:var(--text);
+  background:#fff;
+  display:block;
+  box-shadow:var(--shadow-sm);
+  transition:box-shadow .18s ease, transform .18s ease, border-color .18s ease;
+}
+.overview-card:hover{border-color:var(--accent); box-shadow:var(--shadow-md); transform:translateY(-2px);}
+.overview-card .n{font-size:11px; font-weight:700; color:var(--accent);}
+.overview-card h3{margin:4px 0 6px 0; font-size:15px;}
+.overview-card p{margin:0; font-size:12.5px; color:var(--muted); line-height:1.5;}
+
+/* ---------- STATS BAR (homepage) ---------- */
+.stats-bar{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+  margin:0 0 26px 0;
+}
+.stat-card{
+  background:var(--accent-soft);
+  border:1px solid #cfe0f6;
+  border-radius:var(--radius);
+  padding:16px 14px;
+  text-align:center;
+  box-shadow:var(--shadow-sm);
+  transition:transform .18s ease, box-shadow .18s ease;
+}
+.stat-card:hover{transform:translateY(-2px); box-shadow:var(--shadow-md);}
+.stat-num{
+  font-size:26px;
+  font-weight:800;
+  color:var(--accent-dark);
+  line-height:1.1;
+}
+.stat-label{
+  font-size:11.5px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  margin-top:4px;
+}
+@media (max-width:560px){
+  .stats-bar{grid-template-columns:1fr;}
+}
+
+/* ---------- SITE FOOTER ---------- */
+footer.site-footer{
+  margin-top:40px;
+  background:var(--sidebar-bg);
+  border-top:1px solid var(--border);
+  position:relative;
+  color:var(--muted);
+  padding:44px 48px 0 48px;
+}
+footer.site-footer::before{
+  content:"";
+  position:absolute;
+  top:-1px; left:0; right:0;
+  height:3px;
+  background:linear-gradient(90deg,var(--accent),var(--accent-2));
+}
+.footer-inner{
+  max-width:1180px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:1.4fr 1fr 1fr 1fr;
+  gap:32px;
+  padding-bottom:28px;
+}
+.footer-col h3{
+  font-size:15px;
+  color:var(--text);
+  margin:0 0 10px 0;
+  font-weight:700;
+}
+.footer-col h4{
+  font-size:12.5px;
+  color:var(--text);
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  margin:0 0 14px 0;
+  font-weight:700;
+  position:relative;
+  padding-bottom:8px;
+}
+.footer-col h4::after{
+  content:"";
+  position:absolute;
+  left:0; bottom:0;
+  width:26px; height:2px;
+  background:var(--accent);
+  border-radius:2px;
+}
+.footer-brand p{
+  font-size:12.5px;
+  line-height:1.65;
+  margin:0;
+  max-width:320px;
+}
+.footer-col ul{
+  list-style:none;
+  margin:0;
+  padding:0;
+}
+.footer-col ul li{
+  margin-bottom:9px;
+  font-size:12.5px;
+  line-height:1.55;
+}
+.footer-col ul li a{
+  color:var(--muted);
+  text-decoration:none;
+}
+.footer-col ul li a:hover{color:var(--accent);}
+.footer-col ul.footer-plain li{color:var(--muted);}
+
+/* ---- brand / affiliation lockup ---- */
+.footer-affiliation{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  text-decoration:none;
+  margin-top:16px;
+  padding:8px 12px 8px 8px;
+  border:1px solid var(--border);
+  border-radius:999px;
+  background:#fff;
+  width:fit-content;
+  box-shadow:var(--shadow-sm);
+  transition:border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+}
+.footer-affiliation:hover{border-color:#cfe0f6; box-shadow:var(--shadow-md); transform:translateY(-1px);}
+.evida-mark{
+  width:30px; height:30px;
+  border-radius:50%;
+  flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  color:#fff;
+}
+.evida-mark svg{width:17px; height:17px; display:block;}
+.footer-affiliation .evida-text{line-height:1.25;}
+.footer-affiliation .evida-text .k{
+  display:block; font-size:9.5px; color:var(--muted);
+  text-transform:uppercase; letter-spacing:.06em;
+}
+.footer-affiliation .evida-text .v{
+  display:block; font-size:13px; font-weight:700; color:var(--text);
+}
+
+.footer-bottom{
+  max-width:1180px;
+  margin:0 auto;
+  border-top:1px solid var(--border);
+  padding:18px 0;
+  font-size:11.5px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  flex-wrap:wrap;
+  text-align:center;
+}
+.footer-bottom a{color:var(--muted); text-decoration:none;}
+.footer-bottom a:hover{color:var(--accent);}
+@media (max-width:900px){
+  footer.site-footer{padding:36px 20px 0 20px;}
+  .footer-inner{grid-template-columns:1fr 1fr; gap:24px;}
+}
+@media (max-width:560px){
+  .footer-inner{grid-template-columns:1fr;}
+}
+#menu-btn{display:none;}
+@media (max-width:900px){
+  #sidebar{position:fixed; left:-100%; z-index:50; transition:left .2s ease; box-shadow:0 0 24px rgba(0,0,0,.2);}
+  #sidebar.show{left:0;}
+  #main{padding:20px;}
+  #menu-btn{
+    display:inline-block;
+    position:sticky; top:10px; left:10px;
+    z-index:40;
+    background:var(--accent);
+    color:#fff; border:none; border-radius:8px;
+    padding:9px 14px; font-size:13px; font-weight:600; cursor:pointer;
+    margin-bottom:14px;
+    box-shadow:var(--shadow-md);
+  }
+  #menu-btn:hover{background:var(--accent-dark);}
+  #menu-btn:active{transform:scale(.97);}
+}
+
+
+/* ===== Systemic learning map ===== */
+.learning-intro{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;margin:22px 0}
+.learning-panel,.family-block,.connection-box{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-sm)}
+.learning-panel h3,.family-block h3,.connection-box h3{margin-top:0; font-size:15.5px;}
+.foundation-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+.foundation-item{padding:13px 14px;border:1px solid var(--line);border-radius:12px;background:var(--soft); transition:box-shadow .15s ease, transform .15s ease;}
+.foundation-item:hover{box-shadow:var(--shadow-sm); transform:translateY(-1px);}
+.foundation-item strong{display:block;margin-bottom:4px; color:var(--accent-dark);}
+.foundation-item span{font-size:13px;line-height:1.5;opacity:.82}
+.family-list{display:grid;gap:16px;margin-top:18px}
+.family-block .family-intro{margin-top:0;opacity:.78}
+.family-domains{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.map-link{display:inline-block;padding:7px 10px;border:1px solid var(--line);border-radius:999px;text-decoration:none;font-size:13px;color:var(--text);background:#fff;transition:border-color .15s ease, color .15s ease, background-color .15s ease, transform .15s ease, box-shadow .15s ease;}
+.map-link:hover{transform:translateY(-1px); border-color:var(--accent); color:var(--accent); background:var(--accent-soft); box-shadow:var(--shadow-sm);}
+.learning-flow{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:16px 0 4px}
+.flow-step{padding:12px 10px;border-radius:12px;border:1px solid var(--line);text-align:center;font-size:12px;font-weight:700; background:var(--soft); color:var(--accent-dark);}
+.flow-arrow{text-align:center;align-self:center;font-size:18px;opacity:.45; color:var(--accent);}
+.connection-box{margin-top:20px}
+.connection-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.connection-list .map-link{font-size:12px}
+@media(max-width:800px){.learning-intro{grid-template-columns:1fr}.foundation-grid{grid-template-columns:1fr}.learning-flow{grid-template-columns:1fr}.flow-arrow{display:none}}
+</style>
+</head>
+<body>
+
+<div id="app-shell">
+<aside id="sidebar">
+  <div class="brand">
+    <h1>Biomedical Engineering</h1>
+    <p>A Panoramic View </p>
+    <input id="search" type="text" placeholder="Filter topics…">
+  </div>
+  <nav id="tree"></nav>
+</aside>
+
+<main id="main">
+  <button id="menu-btn">☰ Menu</button>
+  <div id="content"></div>
+</main>
+</div>
+
+<script>
+/* =========================================================
+   DATA MODEL — Domains & Sub-domains of Biomedical Engineering
+   ========================================================= */
+const DOMAINS = [
+{
+  id:"biomechanics", title:"Biomechanics",
+  intro:"The application of mechanical principles statics, dynamics, elasticity and fluid mechanics to living tissues, joints and organ systems, bridging Newtonian mechanics with physiology. Biomechanics is the discipline that lets engineers speak the same language as orthopedic surgeons, sports scientists and prosthetists, translating forces and motion into better implants, safer athletes and more effective rehabilitation. Students who master it move fluidly between finite-element software, motion-capture labs and the operating room, making it one of the most versatile entry points into a biomedical engineering career.",
+  insight:"The human body is a mechanical system: Newton's laws and continuum mechanics govern bone, muscle and blood flow understanding them is the key to preventing injury and designing implants that last.",
+  img:"motion",
+  subs:[
+    {id:"kinematics", title:"Kinematics & Kinetics of Human Movement", img:"gait,motion-capture,biomechanics",
+      desc:"Description of joint angles, velocities and accelerations during gait and motion, combined with force/torque analysis using inverse dynamics and motion-capture systems.", solves:"Turns raw motion-capture data into clinically actionable gait metrics, helping clinicians spot abnormal movement patterns before they cause injury.", examples:["Diagnosing crouch gait in children with cerebral palsy","Optimizing a sprinter's stride mechanics for elite athletics","Tracking post-stroke gait rehabilitation progress"]},
+    {id:"musculoskeletal", title:"Musculoskeletal Biomechanics", img:"muscle,skeleton,anatomy",
+      desc:"Modeling of muscle force generation (Hill-type models), tendon elasticity, joint loading and bone stress distribution under physiological activity.", solves:"Predicts the forces individual muscles, tendons and bones must bear during daily activity, guiding safer training and surgical planning.", examples:["Estimating knee-joint loading in ACL reconstruction patients","Simulating muscle forces for ergonomic workstation design","Predicting bone stress loss in astronauts under reduced gravity"]},
+    {id:"cardio-biomech", title:"Cardiovascular Biomechanics (Hemodynamics)", img:"blood-vessel,artery,flow",
+      desc:"Fluid-structure interaction in arteries, wall shear stress, pulsatile flow and its link to atherosclerosis, aneurysms and heart-valve mechanics.", solves:"Explains why blood vessels fail  aneurysm rupture, plaque buildup  by modeling how flowing blood stresses vessel walls.", examples:["Predicting aneurysm rupture risk from wall shear stress","Designing artificial heart valves for long-term durability","Planning stent placement in narrowed coronary arteries"]},
+    {id:"soft-tissue", title:"Biomechanics of Soft Tissues", img:"tissue,collagen,cartilage",
+      desc:"Viscoelastic and hyperelastic constitutive models (e.g. Fung, Mooney-Rivlin) describing skin, cartilage, ligaments and tendons under large deformation.", solves:"Provides the mechanical models needed to design implants and surgical tools that behave like real skin, cartilage and tendon under load.", examples:["Designing hernia mesh that stretches like abdominal tissue","Modeling cartilage wear progression in osteoarthritis","Engineering synthetic tendon grafts for ACL repair"]},
+    {id:"ortho-implant", title:"Orthopedic Biomechanics & Implant Design", img:"orthopedic,implant,hip",
+      desc:"Stress-shielding, fatigue life, and finite-element analysis of hip, knee and spinal implants under cyclic physiological loading.", solves:"Ensures joint replacements survive millions of loading cycles without loosening or fracturing the surrounding bone.", examples:["Extending hip-implant lifespan beyond 20 years","Reducing stress-shielding in knee replacements","Designing spinal-fusion hardware that withstands daily bending"]}
+  ]
+},
+{
+  id:"biomaterials", title:"Biomaterials",
+  intro:"The science of materials engineered to interact with biological systems spanning metals, polymers, ceramics and composites used in implants, devices and scaffolds. Every hip replacement, drug-eluting stent and dissolvable suture exists because a materials engineer solved the fundamental trade-off between mechanical performance and biological acceptance. This domain sits at the crossroads of chemistry, materials science and clinical medicine, and its graduates are in constant demand across the multi-billion-dollar medical device industry.",
+  insight:"A biomaterial must perform mechanically while being tolerated by the body  every material choice is a negotiation between strength and biocompatibility.",
+  img:"biomaterials,implant,polymer",
+  subs:[
+    {id:"metallic", title:"Metallic Biomaterials", img:"titanium,implant,metal",
+      desc:"Titanium alloys, stainless steel and cobalt-chromium: corrosion resistance, osseointegration and fatigue behavior in load-bearing implants.", solves:"Delivers load-bearing implant materials that resist corrosion in the body while bonding permanently with living bone.", examples:["Titanium dental implants that fuse with jawbone","Cobalt-chromium hip stems for long-term wear resistance","Stainless-steel orthopedic screws and plates"]},
+    {id:"polymeric", title:"Polymeric Biomaterials", img:"polymer,hydrogel,plastic",
+      desc:"Hydrogels, PLA/PGA, silicones and polyurethanes tailored for elasticity, degradation rate and drug-eluting surfaces.", solves:"Supplies soft, tunable materials that can degrade on schedule or release drugs as they break down.", examples:["Dissolvable sutures that disappear after wound healing","Silicone breast implants and catheters","Drug-eluting polymer coatings on coronary stents"]},
+    {id:"ceramics", title:"Ceramics & Bioactive Glasses", img:"ceramic,hydroxyapatite,bone",
+      desc:"Hydroxyapatite, alumina and bioactive glass for bone regeneration, dental applications and wear-resistant joint surfaces.", solves:"Provides bone-mimicking, wear-resistant materials for regeneration and load-bearing joint surfaces.", examples:["Hydroxyapatite bone-graft substitutes","Ceramic hip-joint bearing surfaces","Bioactive glass for dental bone regeneration"]},
+    {id:"biocompat", title:"Biocompatibility & Host Response", img:"immune,cell,inflammation",
+      desc:"Protein adsorption, foreign-body reaction, fibrous encapsulation and standardized biocompatibility testing (ISO 10993).", solves:"Prevents implants from triggering rejection, infection or chronic inflammation once inside the body.", examples:["ISO 10993 testing before a new implant reaches clinical trials","Reducing fibrous scar-tissue buildup around pacemakers","Screening coatings to prevent blood-clot formation on stents"]},
+    {id:"smart-mat", title:"Biodegradable & Smart Materials", img:"shape-memory,smart-material,polymer",
+      desc:"Bioresorbable polymers, shape-memory alloys and stimuli-responsive materials for temporary implants and minimally invasive devices.", solves:"Creates implants that change shape or disappear on cue, avoiding a second surgery to remove them.", examples:["Self-expanding nitinol stents delivered via catheter","Bioresorbable heart stents that dissolve after healing","Shape-memory sutures that tighten at body temperature"]}
+  ]
+},
+{
+  id:"tissue-eng", title:"Tissue Engineering",
+  intro:"Combining cells, scaffolds and biochemical signals to regenerate or replace damaged tissues and organs  the foundation of regenerative medicine. Tissue engineers are working toward a future where patients no longer wait on organ-donor lists, growing skin, cartilage and even early-stage organs in the lab. It is one of the most rapidly advancing and well-funded fields in biomedical research, rewarding students who enjoy working at the interface of cell biology, biomaterials and bioprocess engineering.",
+  insight:"Regenerating tissue means combining three ingredients — cells, scaffold and biochemical signals  inside an environment that mimics native physiology.",
+  img:"tissue-engineering,cells,scaffold",
+  subs:[
+    {id:"scaffold", title:"Scaffold Design & Fabrication", img:"scaffold,3d-printing,biomaterial",
+      desc:"Porosity, mechanical support and degradation kinetics of scaffolds produced via electrospinning, freeze-drying and additive manufacturing.", solves:"Gives cells a temporary physical structure to grow on before it safely degrades, avoiding permanent foreign material.", examples:["3D-printed scaffolds for jawbone reconstruction","Electrospun nanofiber scaffolds for skin grafts","Cartilage scaffolds for knee-repair implants"]},
+    {id:"stem-cells", title:"Stem Cells & Regenerative Medicine", img:"stem-cell,biology,microscope",
+      desc:"Pluripotent and mesenchymal stem cell differentiation pathways used to regenerate bone, cartilage, skin and vascular tissue.", solves:"Supplies the raw biological material that can be coaxed into replacing damaged tissue instead of relying on donor organs.", examples:["Stem-cell-derived skin grafts for burn victims","Cartilage regeneration therapy for osteoarthritis","Experimental stem-cell therapy for spinal cord injury"]},
+    {id:"bioreactors", title:"Bioreactors & Dynamic Culture", img:"bioreactor,lab,cell-culture",
+      desc:"Perfusion, rotating-wall and mechanical-stimulation bioreactors that mimic in vivo conditions to promote tissue maturation.", solves:"Recreates the mechanical and chemical conditions tissue needs to mature outside the body before implantation.", examples:["Perfusion bioreactors growing engineered heart valves","Rotating-wall vessels for cartilage tissue maturation","Bioreactor-grown skin substitutes for grafting"]},
+    {id:"vascularization", title:"Vascularization Strategies", img:"blood-vessel,capillary,network",
+      desc:"Angiogenic growth factors, microfluidic vascular networks and co-culture strategies to overcome diffusion limits in engineered tissue.", solves:"Solves the biggest bottleneck in tissue engineering — keeping thick engineered tissue alive by feeding it blood supply.", examples:["Pre-vascularized skin grafts for faster healing","Microfluidic vascular networks in organ-on-chip devices","Angiogenic growth factors in bone-graft substitutes"]},
+    {id:"bioprinting", title:"Organoids & 3D Bioprinting", img:"3d-bioprinting,organoid,lab",
+      desc:"Layer-by-layer deposition of cell-laden bioinks to build organoids and patient-specific tissue constructs for research and transplantation.", solves:"Builds patient-specific tissue and organ models on demand, reducing dependence on donor organs and animal testing.", examples:["3D-printed ear and nose cartilage for reconstructive surgery","Bioprinted skin patches for wound healing","Liver organoids for drug-toxicity screening"]}
+  ]
+},
+{
+  id:"bioinstrumentation", title:"Bioinstrumentation",
+  intro:"Design of electronic instruments that acquire, condition and display physiological signals safely and accurately. Nearly every device a nurse or physician touches  from a bedside ECG monitor to an infusion pump  was shaped by a bioinstrumentation engineer balancing signal fidelity against patient safety. This domain offers a direct path into medical-device companies and hospital biomedical engineering departments, and rewards students who enjoy hands-on circuit design as much as physiological reasoning.",
+  insight:"A medical instrument must amplify a tiny physiological signal while guaranteeing absolute electrical safety for the patient  the two goals define every design decision.",
+  img:"medical-device,electronics,instrument",
+  subs:[
+    {id:"amplifiers", title:"Amplifiers & Signal Conditioning", img:"circuit,amplifier,electronics",
+      desc:"Instrumentation amplifiers, common-mode rejection and analog filtering used to extract weak bioelectric signals from noise.", solves:"Recovers microvolt-level physiological signals buried in electrical noise so they can actually be measured.", examples:["ECG front-end amplifiers in bedside heart monitors","EEG amplifiers used in epilepsy monitoring","EMG amplifiers in prosthetic-limb control systems"]},
+    {id:"transducers", title:"Transducers & Front-End Electronics", img:"sensor,transducer,circuit",
+      desc:"Conversion of physical/physiological quantities (pressure, temperature, displacement) into electrical signals with defined sensitivity and linearity.", solves:"Converts physical quantities the body produces  pressure, force, motion  into electrical signals equipment can read.", examples:["Blood-pressure cuff pressure transducers","Strain-gauge transducers in surgical force-feedback tools","Accelerometers in fall-detection wearables"]},
+    {id:"device-safety", title:"Medical Device Design & Safety Standards", img:"medical-equipment,hospital,safety",
+      desc:"Electrical safety (IEC 60601), isolation techniques and fail-safe design principles for patient-connected equipment.", solves:"Prevents patient-connected electrical equipment from becoming a shock or fire hazard.", examples:["Isolated power supplies in operating-room equipment","Leakage-current testing on infusion pumps","Defibrillator design compliant with IEC 60601"]},
+    {id:"wearables", title:"Wearable & Implantable Devices", img:"wearable,smartwatch,health",
+      desc:"Low-power telemetry, biocompatible packaging and energy harvesting for continuous ambulatory monitoring and implantable therapy devices.", solves:"Enables continuous, comfortable, all-day health monitoring outside the hospital.", examples:["Smartwatches tracking heart rhythm for AFib detection","Continuous glucose monitors for diabetics","Implantable loop recorders for arrhythmia detection"]}
+  ]
+},
+{
+  id:"compartmental", title:"Compartmental Modeling",
+  intro:"Representing the body as interconnected compartments to describe distribution, metabolism and excretion of substances using mass-balance differential equations. This is the mathematical toolkit behind every drug dose printed on a prescription label, letting pharmacologists predict how a medicine will behave in a patient before it is ever administered. Students drawn to applied mathematics and physiology find compartmental modeling a powerful, elegant bridge between the two.",
+  insight:"Modeling the body as interconnected compartments turns drug distribution and elimination into a simple system of differential equations.",
+  img:"pharmacokinetics,model,diagram",
+  subs:[
+    {id:"pk-models", title:"Pharmacokinetic Compartmental Models", img:"drug,pharmacokinetics,molecule",
+      desc:"One, two and three-compartment models describing drug absorption, distribution and elimination rate constants (ka, ke).", solves:"Predicts how much of a drug reaches the bloodstream and how fast it clears, guiding safe dosing.", examples:["Calculating antibiotic dosing intervals","Predicting chemotherapy drug clearance in cancer patients","Setting safe anesthesia infusion rates during surgery"]},
+    {id:"ode-systems", title:"Mass-Balance & ODE Systems", img:"differential-equation,math,graph",
+      desc:"Formulating and solving systems of ordinary differential equations that conserve mass across physiological compartments.", solves:"Gives pharmacologists the mathematical backbone to simulate drug behavior before testing in patients.", examples:["Simulating insulin-glucose dynamics for diabetes therapy","Modeling IV drug infusion profiles","Predicting drug accumulation in kidney-impaired patients"]},
+    {id:"multicompartment", title:"Multi-Compartment Physiological Systems", img:"physiology,organ,diagram",
+      desc:"Extension to glucose-insulin regulation, thermal compartments and whole-body physiologically based pharmacokinetic (PBPK) models.", solves:"Captures how a drug or signal spreads across multiple organs at once, not just one compartment.", examples:["Whole-body PBPK models used in new-drug approval","Modeling glucose-insulin regulation for artificial pancreas systems","Simulating body-wide anesthesia distribution"]},
+    {id:"param-estimation", title:"Parameter Estimation & Identifiability", img:"data,curve-fitting,statistics",
+      desc:"Nonlinear regression, sensitivity analysis and structural identifiability techniques for fitting compartmental models to clinical data.", solves:"Fits mathematical models to real patient data so dosing predictions are trustworthy, not guesswork.", examples:["Personalizing warfarin dosing from patient blood tests","Fitting population pharmacokinetic models in clinical trials","Estimating kidney clearance rates from lab data"]}
+  ]
+},
+{
+  id:"biosensors", title:"Biomedical Sensors",
+  intro:"Devices that translate biological, chemical or physical signals into measurable electrical outputs for diagnosis and monitoring. From the glucose meter in a diabetic's kitchen drawer to the rapid antigen test in a pharmacy, biosensors have become the fastest-growing bridge between the laboratory and everyday life. This domain combines electrochemistry, microfabrication and signal processing, and its graduates are shaping the future of point-of-care and wearable diagnostics.",
+  insight:"A biosensor turns a biological, chemical or physical event into a measurable electrical signal  biorecognition on one side, transduction on the other.",
+  img:"biosensor,lab,microchip",
+  subs:[
+    {id:"physical-sensors", title:"Physical Sensors (Pressure, Temperature, Motion)", img:"sensor,pressure,electronics",
+      desc:"Piezoresistive, capacitive and thermocouple-based sensors used for blood pressure, body temperature and accelerometric monitoring.", solves:"Turns everyday vital signs into continuous digital data for monitoring.", examples:["Blood-pressure cuffs and arterial-line pressure sensors","Body-temperature sensors in smart thermometers","Accelerometer-based fall detectors for the elderly"]},
+    {id:"chem-biosensors", title:"Chemical & Biosensors", img:"biosensor,enzyme,chemistry",
+      desc:"Enzyme electrodes, immunosensors and glucose biosensors relying on electrochemical or optical transduction of biorecognition events.", solves:"Detects specific molecules in blood or fluids fast enough for point-of-care decisions.", examples:["Home glucose meters for diabetes management","Rapid COVID-19 antigen test strips","Lactate biosensors for athletic performance monitoring"]},
+    {id:"optical-sensors", title:"Optical & Fiber-Optic Sensors", img:"fiber-optic,sensor,light",
+      desc:"Pulse oximetry, fiber-Bragg gratings and surface plasmon resonance sensors exploiting light-tissue and light-analyte interaction.", solves:"Measures blood oxygen, chemistry or structure using light instead of needles or wires.", examples:["Pulse oximeters clipped on a fingertip","Fiber-optic pressure sensors in MRI-compatible devices","Surface plasmon resonance biosensors for drug discovery"]},
+    {id:"mems", title:"MEMS & Lab-on-Chip Sensors", img:"microchip,mems,lab-on-chip",
+      desc:"Microfabricated cantilevers, microfluidic channels and integrated lab-on-chip platforms for point-of-care diagnostics.", solves:"Shrinks an entire diagnostic lab onto a chip, enabling testing outside a central laboratory.", examples:["Lab-on-chip DNA testing devices","Microfluidic cartridges for rapid sepsis diagnosis","MEMS pressure sensors in implantable devices"]}
+  ]
+},
+{
+  id:"enzyme-kinetics", title:"Biochemical Reactions and Enzyme Kinetics",
+  intro:"Quantitative description of enzyme-catalyzed reactions and metabolic networks underlying cellular biochemistry and bioprocess engineering. Understanding how fast an enzyme works — and how a drug can block it — is the quantitative foundation beneath modern pharmacology, from statins to protease inhibitors. Students who enjoy translating chemistry into predictive mathematics will find this domain essential for careers in drug design and biomanufacturing.",
+  insight:"The rate of an enzyme-catalyzed reaction is predictable: it obeys quantitative laws (Michaelis-Menten) essential to understanding metabolism and designing drugs.",
+  img:"enzyme,biochemistry,molecule",
+  subs:[
+    {id:"michaelis-menten", title:"Michaelis–Menten Kinetics", img:"enzyme,reaction,graph",
+      desc:"Derivation and application of the Michaelis-Menten equation, Km and Vmax, and Lineweaver-Burk linearization for reaction-rate analysis.", solves:"Predicts how fast an enzyme-driven reaction runs, essential for drug and diagnostic-test design.", examples:["Designing enzyme-based glucose test strips","Predicting drug-metabolizing enzyme saturation","Optimizing industrial enzyme reactors"]},
+    {id:"inhibition", title:"Enzyme Inhibition", img:"molecule,inhibitor,biochemistry",
+      desc:"Competitive, non-competitive and uncompetitive inhibition mechanisms and their kinetic signatures relevant to pharmacology.", solves:"Explains how drugs block harmful enzymes — the basis of most modern pharmacology.", examples:["Statins inhibiting cholesterol-producing enzymes","ACE inhibitors for blood-pressure control","Protease inhibitors used in HIV treatment"]},
+    {id:"metabolic-pathways", title:"Metabolic Pathway Modeling", img:"metabolism,pathway,cell",
+      desc:"Flux balance analysis and network modeling of interconnected enzymatic reactions within metabolic pathways.", solves:"Maps how thousands of reactions interact, revealing drug targets and metabolic-disease causes.", examples:["Identifying cancer-cell metabolic vulnerabilities","Modeling insulin resistance in type 2 diabetes","Designing metabolically engineered bacteria for insulin production"]},
+    {id:"bioreactor-kinetics", title:"Bioreactor Kinetics", img:"bioreactor,fermentation,industry",
+      desc:"Monod growth kinetics, substrate consumption and product-formation rates applied to fermentation and cell-culture bioreactors.", solves:"Optimizes industrial-scale cell and microbe growth for manufacturing biologic drugs.", examples:["Scaling up insulin production in fermenters","Monoclonal antibody manufacturing bioreactors","Vaccine production in cell-culture bioreactors"]}
+  ]
+},
+{
+  id:"biosignal", title:"Biosignal Processing",
+  intro:"Extraction of clinically meaningful information from physiological signals using digital signal processing and machine learning. Every wearable that claims to detect an irregular heartbeat or a sleep-apnea episode relies on algorithms first developed in this domain, translating noisy raw voltage traces into life-saving alerts. It is an ideal specialization for students who enjoy coding as much as physiology, with strong demand in the wearable-technology and clinical-AI industries.",
+  insight:"A raw physiological signal is always noisy  signal processing extracts the clinically useful information, from a simple filter to a neural network.",
+  img:"ecg,signal,waveform",
+  subs:[
+    {id:"time-freq", title:"Time-Domain & Frequency-Domain Analysis", img:"signal,spectrum,waveform",
+      desc:"Statistical time-domain features and Fourier-based spectral analysis applied to ECG, EEG and EMG signals.", solves:"Extracts hidden frequency patterns from raw physiological traces that the eye can't see.", examples:["Detecting atrial fibrillation from ECG frequency content","Identifying tremor frequency in Parkinson's disease","Analyzing EMG spectral shifts to detect muscle fatigue"]},
+    {id:"filtering", title:"Filtering & Noise Reduction", img:"filter,circuit,signal-processing",
+      desc:"Digital FIR/IIR filters, adaptive filtering and baseline-wander removal to isolate physiological signal components.", solves:"Cleans noisy signals so real physiological events aren't lost or misread.", examples:["Removing muscle-noise from ECG recordings","Baseline-wander removal in ambulatory ECG monitors","Adaptive noise cancellation in hearing aids"]},
+    {id:"wavelet", title:"Wavelet & Time-Frequency Methods", img:"wavelet,spectrogram,signal",
+      desc:"Wavelet transforms and spectrograms for analyzing non-stationary biosignals such as EEG seizure activity.", solves:"Pinpoints exactly when a brief abnormal event happens in a signal that keeps changing over time.", examples:["Detecting seizure onset in continuous EEG monitoring","Identifying QRS complexes in noisy ECG","Analyzing transient tremor bursts in EMG"]},
+    {id:"ml-biosignal", title:"Machine Learning for Biosignals", img:"machine-learning,neural-network,data",
+      desc:"Feature extraction and deep-learning classifiers (CNN, RNN) applied to arrhythmia detection and sleep-stage classification.", solves:"Automates detection of dangerous physiological events faster and more consistently than manual review.", examples:["AI-based arrhythmia detection in wearable ECG patches","Automated sleep-stage scoring from polysomnography","Deep-learning seizure prediction from EEG"]}
+  ]
+}, 
+{
+  id:"bioelectric", title:"Bioelectric Phenomena",
+  intro:"The generation and propagation of electrical activity in excitable cells  the physical basis of ECG, EEG and EMG. Before any biosignal can be processed or any pacemaker can be designed, someone has to understand why a neuron or heart cell generates electricity in the first place — that is the question this domain answers from first principles. It provides the essential physiological grounding for careers in neural engineering, cardiac device design and clinical neurophysiology.",
+  insight:"Every electrical activity in the body  ECG, EEG, EMG  originates from an ionic imbalance across the cell membrane.",
+  img:"neuron,electricity,membrane",
+  subs:[
+    {id:"membrane-potential", title:"Membrane Potentials & Ion Channels", img:"cell-membrane,ion-channel,biology",
+      desc:"Nernst and Goldman-Hodgkin-Katz equations describing resting potential generation via selective ion permeability.", solves:"Explains the baseline electrical state every excitable cell relies on to function.", examples:["Explaining how local anesthetics block nerve signaling","Understanding potassium-channel drug side effects on the heart","Modeling resting-potential loss after nerve injury"]},
+    {id:"action-potential", title:"Action Potential Propagation", img:"neuron,action-potential,nerve",
+      desc:"Hodgkin-Huxley formalism of voltage-gated channels and conduction velocity along myelinated and unmyelinated axons.", solves:"Describes how a nerve or muscle cell fires and transmits a signal  the basis of all neural communication.", examples:["Explaining how local anesthetics numb pain signals","Modeling conduction block in multiple sclerosis","Designing nerve-conduction studies for diagnosis"]},
+    {id:"cardiac-electro", title:"Cardiac Electrophysiology (ECG)", img:"ecg,heart,electrocardiogram",
+      desc:"Cardiac action potential phases, the cardiac dipole, and the volume-conductor theory underlying the 12-lead ECG.", solves:"Turns the heart's electrical activity into a readable diagnostic signal  the ECG.", examples:["Diagnosing heart attacks from ST-segment changes","Detecting arrhythmias for pacemaker programming","Screening athletes for dangerous heart-rhythm disorders"]},
+    {id:"neural-electro", title:"Neural Electrophysiology (EEG/EMG)", img:"eeg,brain-waves,electrode",
+      desc:"Generation of scalp EEG rhythms and motor-unit action potentials recorded via surface and needle EMG.", solves:"Reveals brain and muscle activity for diagnosing neurological and neuromuscular disease.", examples:["Diagnosing epilepsy from EEG spike patterns","Detecting nerve damage via EMG in carpal tunnel syndrome","Monitoring brain activity during anesthesia"]}
+  ]
+},
+{
+  id:"radiation-imaging", title:"Radiation Imaging",
+  intro:"Diagnostic imaging modalities based on ionizing radiation, combining physics of radiation interaction with tissue and mathematical image reconstruction. This domain turned the inside of the human body into something a physician could simply look at, and it remains one of the most mathematically rich areas of biomedical engineering, blending nuclear physics with inverse-problem algorithms. Its graduates go on to design the CT, PET and SPECT scanners that make modern diagnosis possible.",
+  insight:"Ionizing-radiation imaging reconstructs the inside of the body from external measurements  as much a mathematical reconstruction problem as a nuclear-physics one.",
+  img:"xray,ct-scan,radiology",
+  subs:[
+    {id:"xray-ct", title:"X-ray & Computed Tomography", img:"ct-scan,xray,hospital",
+      desc:"Photon attenuation physics, the Radon transform and filtered back-projection used to reconstruct cross-sectional CT images.", solves:"Reconstructs detailed cross-sectional anatomy from external X-ray measurements without surgery.", examples:["CT scans for detecting internal bleeding after trauma","Lung-cancer screening with low-dose CT","CT-guided biopsy planning"]},
+    {id:"nuclear-med", title:"Nuclear Medicine (PET/SPECT)", img:"pet-scan,nuclear-medicine,brain",
+      desc:"Radiotracer decay, coincidence detection and tomographic reconstruction underlying PET and SPECT functional imaging.", solves:"Images how tissue functions metabolically, catching disease before structural changes appear.", examples:["PET scans detecting early-stage cancer spread","SPECT imaging of heart-muscle blood flow","PET imaging in early Alzheimer's diagnosis"]},
+    {id:"dosimetry", title:"Radiation Dosimetry & Safety", img:"radiation,dosimeter,safety",
+      desc:"Absorbed dose, ALARA principles and shielding calculations for protecting patients and staff from ionizing radiation.", solves:"Keeps patients and staff safe by tracking and minimizing radiation exposure.", examples:["Setting safe pediatric CT radiation protocols","Radiation shielding design for X-ray rooms","Dose-monitoring badges for radiology staff"]},
+    {id:"reconstruction", title:"Image Reconstruction Algorithms", img:"algorithm,image-processing,ct",
+      desc:"Analytical and iterative (e.g. OSEM, ART) reconstruction algorithms that convert projection data into diagnostic images.", solves:"Turns raw scanner data into a usable diagnostic image, often at lower radiation dose.", examples:["Iterative reconstruction enabling low-dose CT","PET image reconstruction for tumor localization","Reducing metal-implant artifacts in CT images"]}
+  ]
+},
+{
+  id:"physio-modeling", title:"Physiological Modeling",
+  intro:"Mathematical representation of organ-system function to simulate normal physiology, pathology and therapeutic interventions. Physiological models let engineers test a new heart-failure drug or ventilator setting on a virtual patient before ever risking a real one, dramatically accelerating safe innovation in medicine. This domain rewards students who enjoy control theory and differential equations and want to see their mathematics applied directly to patient care.",
+  insight:"Modeling an organ as a control system  feedback loops, compliance, resistance  lets engineers simulate normal physiology and test virtual interventions.",
+  img:"physiology,human-body,anatomy",
+  subs:[
+    {id:"cardio-model", title:"Cardiovascular System Models", img:"heart,circulation,cardiovascular",
+      desc:"Windkessel and lumped-parameter models capturing heart pump function, vascular compliance and blood-pressure dynamics.", solves:"Simulates heart and vessel function to test treatments virtually before trying them on patients.", examples:["Simulating blood-pressure response to heart-failure drugs","Predicting hemodynamics after heart-valve surgery","Modeling blood flow in congenital heart defects"]},
+    {id:"respiratory-model", title:"Respiratory System Models", img:"lungs,respiratory,breathing",
+      desc:"Mechanical lung-compliance models, gas exchange equations and ventilator-control simulations.", solves:"Predicts how the lungs will respond to disease or mechanical ventilation.", examples:["Setting safe ventilator pressure settings in the ICU","Modeling gas exchange in COPD patients","Simulating lung mechanics in premature infants"]},
+    {id:"renal-metabolic", title:"Renal & Metabolic Models", img:"kidney,metabolism,physiology",
+      desc:"Glomerular filtration, electrolyte balance and glucose-insulin regulatory models describing renal and metabolic homeostasis.", solves:"Models how the kidneys and metabolism maintain the body's internal balance, informing dialysis and diabetes care.", examples:["Optimizing dialysis fluid composition","Simulating glucose-insulin dynamics for artificial pancreas devices","Modeling electrolyte imbalance in kidney disease"]},
+    {id:"control-systems", title:"Control Systems in Physiology (Homeostasis)", img:"feedback,control-system,diagram",
+      desc:"Negative-feedback loops governing blood pressure, thermoregulation and hormonal control, analyzed with classical control theory.", solves:"Explains how the body automatically corrects itself, and why that regulation sometimes fails in disease.", examples:["Modeling blood-pressure regulation failure in hypertension","Designing closed-loop insulin pumps","Simulating thermoregulation failure in heatstroke"]}
+  ]
+},
+{
+  id:"bio-optics", title:"Biomedical Optics and Lasers",
+  intro:"The use of light and laser technology for diagnosis, imaging and therapy, based on the interaction of photons with biological tissue. From LASIK surgery to fluorescence-guided tumor removal, biomedical optics gives clinicians tools that are precise, often non-invasive, and free of ionizing radiation. Students fascinated by physics and photonics will find this one of the most visually striking and clinically elegant domains in the field.",
+  insight:"Light interacts with tissue through absorption and scattering  understanding that interaction is what allows imaging, diagnosis and therapy without ionizing radiation.",
+  img:"laser,medical,optics",
+  subs:[
+    {id:"light-tissue", title:"Light–Tissue Interaction", img:"light,tissue,optics",
+      desc:"Absorption, scattering and the diffusion approximation describing how photons propagate through biological tissue.", solves:"Predicts how deep light can penetrate tissue, guiding every optical diagnostic or therapy design.", examples:["Planning laser depth penetration for skin treatments","Designing near-infrared spectroscopy for brain monitoring","Optimizing light dose in photodynamic cancer therapy"]},
+    {id:"oct", title:"Optical Coherence Tomography", img:"oct,retina,imaging",
+      desc:"Low-coherence interferometry enabling micron-resolution cross-sectional imaging of retina and coronary arteries.", solves:"Provides micron-resolution cross-sections of tissue without a biopsy.", examples:["Diagnosing macular degeneration from retinal OCT scans","Guiding coronary stent placement with intravascular OCT","Early glaucoma detection via optic-nerve imaging"]},
+    {id:"therapeutic-lasers", title:"Therapeutic & Surgical Lasers", img:"laser-surgery,medical-laser,surgery",
+      desc:"Photothermal, photochemical and photoablative laser-tissue interactions applied in ophthalmology, dermatology and surgery.", solves:"Delivers precise, often bloodless treatment by choosing the right light-tissue interaction.", examples:["LASIK laser vision-correction surgery","Laser tattoo and hair removal","Laser ablation of tumors"]},
+    {id:"fluorescence", title:"Fluorescence & Spectroscopic Imaging", img:"fluorescence,microscopy,spectroscopy",
+      desc:"Fluorophore excitation-emission physics enabling molecular imaging, spectroscopy and image-guided surgery.", solves:"Lights up specific molecules or structures, guiding surgeons and researchers to what matters most.", examples:["Fluorescence-guided tumor-margin removal surgery","Confocal microscopy for cell-biology research","Indocyanine green imaging of blood vessels during surgery"]}
+  ]
+},
+{
+  id:"transport", title:"Biomedical Transport Processes",
+  intro:"Application of mass, momentum and heat transfer principles to physiological and therapeutic processes at the tissue and cellular scale. The same equations that describe a chemical reactor also explain why a tumor's core starves of oxygen or how a drug implant releases its payload over weeks — transport phenomena are the hidden mathematics behind therapy design. It is a natural specialization for chemical- and mechanical-engineering-minded students moving into biomedical applications.",
+  insight:"The same laws of mass, momentum and heat transfer that govern chemical engineering apply, at tissue scale, to physiology and pharmacology.",
+  img:"diffusion,transport,biology",
+  subs:[
+    {id:"diffusion-convection", title:"Diffusion & Convection in Tissue", img:"diffusion,molecule,tissue",
+      desc:"Fick's laws and convection-diffusion equations describing nutrient and oxygen transport across tissue and cell layers.", solves:"Explains why some tissues starve of oxygen and nutrients despite normal blood flow nearby.", examples:["Predicting oxygen diffusion limits in engineered tissue","Modeling nutrient delivery into tumor cores","Designing dialysis-membrane transport rates"]},
+    {id:"drug-transport", title:"Drug Delivery & Pharmacokinetic Transport", img:"drug-delivery,capsule,pharmacology",
+      desc:"Transport-limited and reaction-limited drug release kinetics from controlled-release formulations and implants.", solves:"Determines how fast a drug is released from an implant or capsule, controlling therapy duration.", examples:["Designing sustained-release contraceptive implants","Timed-release oral drug capsules","Controlled-release chemotherapy wafers implanted in tumors"]},
+    {id:"membrane-transport", title:"Membrane Transport Phenomena", img:"cell-membrane,transport,biology",
+      desc:"Passive diffusion, facilitated transport and active transport mechanisms governing solute movement across cell membranes.", solves:"Explains how cells selectively let nutrients in and waste out — the basis of many drug-delivery strategies.", examples:["Designing drugs that cross the blood-brain barrier","Explaining kidney-dialysis solute exchange","Modeling nutrient absorption in the gut"]},
+    {id:"heat-transfer", title:"Heat Transfer in Biological Tissue", img:"thermal,heat,medical",
+      desc:"The Pennes bioheat equation modeling perfusion-mediated heat transfer during hyperthermia and cryotherapy treatments.", solves:"Predicts how heat spreads through living tissue, critical for safe thermal therapies.", examples:["Planning tumor ablation with focused ultrasound heating","Cryotherapy for prostate-cancer treatment","Preventing burns during radiofrequency cardiac ablation"]}
+  ]
+},
+{
+  id:"computational-cell", title:"Computational Cell Biology and Complexity",
+  intro:"Multiscale computational and systems-level approaches to understand nonlinear, emergent behavior of cells and cellular networks. Cells rarely behave the way a single gene or protein would predict in isolation, and this domain gives students the computational tools to capture that complexity — from cancer's driver-gene networks to the chaos underlying cardiac arrhythmia. It is an exciting frontier for students who enjoy simulation, systems thinking and the mathematics of complex systems.",
+  insight:"The cell is a complex, nonlinear system  computational biology connects the molecular scale to the tissue scale to explain emergent behavior.",
+  img:"cell-biology,network,systems",
+  subs:[
+    {id:"systems-biology", title:"Systems Biology & Network Modeling", img:"network,systems-biology,graph",
+      desc:"Gene-regulatory and protein-interaction network modeling to understand emergent cellular behavior.", solves:"Reveals which genes or proteins actually drive disease, beyond studying them one at a time.", examples:["Identifying cancer driver-gene networks","Mapping drug side-effect pathways","Modeling immune-response networks in infection"]},
+    {id:"agent-based", title:"Agent-Based & Multiscale Models", img:"simulation,cells,computational",
+      desc:"Agent-based simulations linking molecular, cellular and tissue-scale dynamics such as tumor growth and morphogenesis.", solves:"Simulates how millions of individual cells combine to create large-scale patterns like tumors or healing wounds.", examples:["Simulating tumor growth and drug response","Modeling wound-healing cell migration","Simulating embryonic tissue patterning"]},
+    {id:"nonlinear-dynamics", title:"Nonlinear Dynamics & Chaos in Biology", img:"chaos,dynamics,fractal",
+      desc:"Bifurcation analysis and chaotic dynamics describing cardiac arrhythmia, population dynamics and cell-cycle oscillations.", solves:"Explains sudden, unpredictable biological events that simple linear models can't capture.", examples:["Predicting the onset of cardiac arrhythmia","Modeling epidemic outbreak dynamics","Explaining irregular insulin-glucose oscillations"]},
+    {id:"signal-transduction", title:"Cellular Signal Transduction Modeling", img:"cell-signaling,biology,molecule",
+      desc:"Kinetic models of receptor-ligand binding and intracellular signaling cascades (e.g. MAPK pathway).", solves:"Maps how a cell 'decides' how to respond to a signal — key to understanding cancer and drug action.", examples:["Modeling cancer-driving growth-factor signaling","Simulating insulin-receptor signaling in diabetes","Predicting drug response in targeted cancer therapy"]}
+  ]
+},
+{
+  id:"genomics", title:"Genomics and Bioinformatics",
+  intro:"Computational analysis of biological sequence and omics data to understand gene function, variation and disease. Every personalized cancer therapy and every rapid pathogen-tracking effort during an outbreak depends on algorithms first developed in bioinformatics, making it one of the most in-demand computational skill sets in modern medicine. Students with a taste for algorithms and large-scale data will find genomics among the fastest-moving and best-funded domains in biomedical science.",
+  insight:"The genome and omics data only become meaningful through algorithms capable of comparing, aligning and interpreting sequences at massive scale.",
+  img:"dna,genomics,bioinformatics",
+  subs:[
+    {id:"sequence-alignment", title:"Sequence Alignment & Genome Analysis", img:"dna-sequence,genome,biology",
+      desc:"Dynamic-programming alignment (Needleman-Wunsch, Smith-Waterman) and heuristic search (BLAST) for comparing DNA/protein sequences.", solves:"Finds matches and differences between DNA sequences fast enough to be clinically useful.", examples:["Identifying disease-causing gene variants","Comparing viral genomes to track outbreaks","Matching patient tumor DNA to known cancer mutations"]},
+    {id:"transcriptomics", title:"Gene Expression & Transcriptomics", img:"rna,gene-expression,microarray",
+      desc:"RNA-seq quantification, differential expression analysis and clustering of gene-expression profiles.", solves:"Reveals which genes are actually active in a cell or tissue, not just present in the genome.", examples:["Classifying cancer subtypes by gene-expression profile","Identifying genes activated by a new drug","Diagnosing rare diseases from abnormal gene expression"]},
+    {id:"structural-bioinfo", title:"Structural Bioinformatics & Proteomics", img:"protein,structure,molecule",
+      desc:"Protein structure prediction, molecular docking and mass-spectrometry-based proteomic analysis.", solves:"Predicts how a protein folds and interacts, guiding drug design without lengthy lab experiments.", examples:["AlphaFold-based protein-structure prediction for drug targets","Molecular docking to screen candidate drug molecules","Mass-spectrometry proteomics for biomarker discovery"]},
+    {id:"ml-genomics", title:"Machine Learning in Genomics", img:"machine-learning,dna,data",
+      desc:"Deep learning applied to variant calling, disease-risk prediction and genome-wide association studies (GWAS).", solves:"Turns massive genomic datasets into individual disease-risk predictions.", examples:["Predicting breast-cancer risk from BRCA variants","AI-based variant calling in whole-genome sequencing","Genome-wide association studies for diabetes risk"]}
+  ]
+},
+{
+  id:"medical-imaging", title:"Medical Imaging & Reconstruction (MRI/Ultrasound)",
+  intro:"Non-ionizing imaging modalities exploiting magnetic resonance and acoustic wave physics for anatomical and functional imaging. MRI and ultrasound let physicians see soft tissue, blood flow and even brain activity without a single dose of radiation, making them indispensable across obstetrics, oncology and neurology. This domain combines deep physics with real-time signal processing and offers strong career paths into scanner design, radiology software and image-guided therapy.",
+  insight:"MRI and ultrasound exploit non-ionizing physical phenomena  nuclear magnetic resonance and acoustic waves  to see inside the body with no radiological risk.",
+  img:"mri,ultrasound,medical-imaging",
+  subs:[
+    {id:"mri-physics", title:"Magnetic Resonance Imaging Physics", img:"mri,magnet,scanner",
+      desc:"Nuclear spin precession, T1/T2 relaxation, gradient encoding and k-space acquisition underlying MRI.", solves:"Images soft tissue in detail without radiation, revealing what X-rays can't.", examples:["Diagnosing brain tumors and strokes with MRI","Functional MRI for pre-surgical brain mapping","Cardiac MRI for heart-muscle damage assessment"]},
+    {id:"ultrasound", title:"Ultrasound Imaging & Doppler", img:"ultrasound,doppler,imaging",
+      desc:"Acoustic wave propagation, pulse-echo imaging and the Doppler effect used for anatomical and blood-flow imaging.", solves:"Provides real-time, radiation-free imaging, including live blood-flow visualization.", examples:["Prenatal ultrasound imaging during pregnancy","Doppler ultrasound for detecting blood clots","Echocardiography for heart-valve assessment"]},
+    {id:"segmentation", title:"Image Segmentation & Processing", img:"image-segmentation,medical-image,processing",
+      desc:"Thresholding, region-growing and deep-learning segmentation techniques used to delineate organs and lesions.", solves:"Automatically outlines organs and tumors, saving radiologists hours of manual tracing.", examples:["Automatic tumor-volume measurement for radiotherapy planning","Organ segmentation for surgical planning","AI-assisted lesion detection in mammography"]},
+    {id:"fusion", title:"Multimodal Image Fusion", img:"image-fusion,medical,scan",
+      desc:"Registration and fusion of CT, MRI and PET data to combine anatomical and functional information for diagnosis and planning.", solves:"Combines the strengths of different scanners into a single, more informative image.", examples:["PET/CT fusion for precise cancer staging","MRI/CT fusion for radiotherapy targeting","Image fusion in image-guided neurosurgery"]}
+  ]
+},
+{
+  id:"neural-eng", title:"Neural Engineering & Neuroprosthetics",
+  intro:"Interfacing electronic systems with the nervous system to restore, replace or enhance neural function. Neural engineers are building the technology that lets a paralyzed patient move a robotic arm by thought alone or lets a deaf child hear for the first time — few fields offer as direct and dramatic an impact on human capability. It sits at the exciting intersection of electrical engineering, neuroscience and machine learning, and demand for this expertise is accelerating fast.",
+  insight:"Interfacing an electronic system with the nervous system makes it possible to decode, stimulate or replace a lost neural function.",
+  img:"brain-computer-interface,neuroscience,electrode",
+  subs:[
+    {id:"bci", title:"Brain–Computer Interfaces", img:"brain-computer-interface,eeg,technology",
+      desc:"Invasive and non-invasive interfaces decoding cortical activity to control external devices in real time.", solves:"Restores a communication or control channel for people who can't move or speak.", examples:["Letting paralyzed patients control a cursor by thought","Robotic-arm control via brain implants","Brain-controlled communication devices for locked-in patients"]},
+    {id:"neural-decoding", title:"Neural Signal Decoding", img:"neuron,signal,decoding",
+      desc:"Statistical and machine-learning decoders that map multi-electrode neural spike trains to intended movement or speech.", solves:"Translates raw neural activity into the intended action — the core challenge behind every brain-controlled device.", examples:["Decoding intended hand movement for robotic prosthetics","Speech decoding from motor-cortex activity","Predicting movement intention in spinal-cord-injury patients"]},
+    {id:"neurostimulation", title:"Neurostimulation (DBS, FES)", img:"deep-brain-stimulation,neuroscience,electrode",
+      desc:"Deep brain stimulation and functional electrical stimulation used to treat Parkinson's disease and restore motor function.", solves:"Modulates malfunctioning neural circuits to restore lost function without permanently altering them.", examples:["Deep brain stimulation for Parkinson's tremor","Functional electrical stimulation for foot-drop after stroke","Spinal cord stimulation for chronic pain"]},
+    {id:"neuroprosthetics", title:"Neuroprosthetic Devices", img:"prosthetic,bionic,limb",
+      desc:"Cochlear implants, retinal prostheses and bionic limbs that translate neural signals into sensory or motor output.", solves:"Replaces a lost sense or limb function by directly interfacing with the nervous system.", examples:["Cochlear implants restoring hearing in deafness","Retinal implants for partial vision restoration","Bionic hands controlled by residual nerve signals"]}
+  ]
+},
+{
+  id:"rehab-robotics", title:"Rehabilitation Engineering & Biomedical Robotics",
+  intro:"Engineering assistive and robotic systems to restore mobility, assist surgery and support functional recovery. From an exoskeleton that lets a paraplegic patient walk again to the da Vinci system guiding a surgeon's hands with sub-millimeter precision, this domain turns robotics into restored independence and safer surgery. Students who enjoy mechatronics, control systems and human-machine interaction will find rehabilitation engineering one of the most tangible, hands-on paths in biomedical engineering.",
+  insight:"Rehabilitation engineering combines biomechanics, robotics and control to restore or assist human movement, from a simple prosthesis to a surgical robot.",
+  img:"exoskeleton,robotics,rehabilitation",
+  subs:[
+    {id:"prosthetics-orthotics", title:"Prosthetics & Orthotics", img:"prosthetic-leg,orthotic,rehabilitation",
+      desc:"Biomechanical design of limb prostheses and orthoses, including socket fit, energy-storing feet and myoelectric control.", solves:"Restores mobility and function after limb loss or weakness, tailored to the individual.", examples:["Myoelectric prosthetic hands controlled by muscle signals","Energy-storing running blades for amputee athletes","Custom orthotic braces for drop-foot correction"]},
+    {id:"exoskeletons", title:"Exoskeletons & Assistive Robotics", img:"exoskeleton,robot,assistive",
+      desc:"Wearable robotic exoskeletons providing gait assistance, load support and rehabilitation training.", solves:"Assists or augments human movement without replacing it, reducing injury or restoring walking ability.", examples:["Exoskeletons helping paraplegic patients walk again","Industrial exoskeletons reducing back injury in factory workers","Military exoskeletons for load-carrying assistance"]},
+    {id:"surgical-robotics", title:"Surgical Robotics", img:"surgical-robot,operating-room,robotics",
+      desc:"Teleoperated and image-guided surgical robots (e.g. da Vinci system) enabling minimally invasive precision surgery.", solves:"Enables more precise, less invasive surgery than the human hand alone can achieve.", examples:["Da Vinci robotic prostatectomy surgery","Robot-assisted knee-replacement surgery","Robotic-assisted minimally invasive cardiac surgery"]},
+    {id:"rehab-biomech", title:"Rehabilitation Biomechanics", img:"physical-therapy,rehabilitation,movement",
+      desc:"Quantitative assessment of movement disorders and design of therapy protocols using motion analysis and robotics.", solves:"Objectively measures recovery progress instead of relying on subjective clinical impression.", examples:["Quantifying gait recovery after stroke rehabilitation","Robotic gait-training therapy for spinal cord injury","Motion-capture-based sports-injury rehabilitation tracking"]}
+  ]
+},
+{
+  id:"clinical-eng", title:"Clinical Engineering & Regulatory Affairs",
+  intro:"Management, safety and regulation of medical technology throughout its lifecycle within healthcare systems. Every device discussed elsewhere in this course still has to be classified, approved, maintained and monitored to stay safe once it reaches a hospital — this domain is where engineering meets policy, quality systems and patient safety. It is an essential specialization for students aiming at regulatory affairs, hospital biomedical engineering or medical-device quality careers, fields with consistently strong job security.",
+  insight:"A medical device is never simply designed: it must be classified, authorized, maintained and monitored throughout its entire life cycle to remain safe.",
+  img:"hospital,medical-equipment,healthcare",
+  subs:[
+    {id:"regulation", title:"Medical Device Regulation (FDA/CE)", img:"regulation,compliance,medical-device",
+      desc:"Classification, pre-market approval pathways and clinical evaluation requirements under FDA and EU MDR frameworks.", solves:"Ensures a new medical device is proven safe and effective before reaching patients.", examples:["FDA 510(k) clearance pathway for a new infusion pump","CE marking of a diagnostic device under EU MDR","Clinical-trial requirements for a novel implant"]},
+    {id:"risk-management", title:"Risk Management & ISO 14971", img:"risk,safety,standards",
+      desc:"Systematic hazard identification, risk analysis and mitigation throughout the medical-device development lifecycle.", solves:"Catches device hazards before they reach a patient, not after an incident occurs.", examples:["Hazard analysis for an insulin pump's failure modes","Risk-file documentation for surgical-robot approval","Post-market surveillance for pacemaker recalls"]},
+    {id:"hta", title:"Health Technology Assessment", img:"healthcare,technology,assessment",
+      desc:"Evaluation of clinical effectiveness, cost and impact of medical technologies to inform healthcare adoption decisions.", solves:"Decides whether a costly new technology is actually worth adopting in a healthcare system.", examples:["Evaluating cost-effectiveness of a new cancer drug","Assessing whether a hospital should adopt robotic surgery","Comparing MRI vs CT adoption for a regional hospital"]},
+    {id:"equipment-mgmt", title:"Hospital Equipment Management", img:"hospital,equipment,maintenance",
+      desc:"Preventive maintenance, calibration and inventory management of clinical equipment to ensure safety and uptime.", solves:"Keeps hospital equipment safe, calibrated and available when patients need it.", examples:["Preventive maintenance scheduling for ventilators","Calibrating infusion pumps and defibrillators","Tracking hospital equipment inventory and recalls"]}
+  ]
+},
+{
+  id:"nano-drug", title:"Biomedical Nanotechnology & Drug Delivery",
+  intro:"Design of nanoscale materials and carriers for targeted therapy, imaging and controlled drug release. At the nanoscale, materials gain entirely new physical and chemical properties, enabling therapies — like the lipid nanoparticles behind mRNA vaccines — that would be impossible at any larger scale. This is one of the most cutting-edge domains in biomedical engineering, ideal for students drawn to nanotechnology, pharmacology and the future of precision medicine.",
+  insight:"At the nanoscale, physicochemical properties change radically, opening the door to targeted therapeutic carriers that are impossible to build at macroscopic scale.",
+  img:"nanotechnology,nanoparticle,drug-delivery",
+  subs:[
+    {id:"nanoparticles", title:"Nanoparticle Drug Carriers", img:"nanoparticle,liposome,drug",
+      desc:"Liposomes, polymeric nanoparticles and dendrimers engineered to encapsulate and protect therapeutic payloads.", solves:"Protects fragile drugs long enough to reach their target instead of breaking down in the bloodstream.", examples:["Lipid nanoparticles delivering mRNA COVID-19 vaccines","Liposomal doxorubicin for reduced-toxicity chemotherapy","Polymeric nanoparticles for gene-therapy delivery"]},
+    {id:"targeted-release", title:"Targeted & Controlled Release", img:"targeted-therapy,molecule,cancer",
+      desc:"Ligand-mediated targeting and stimuli-responsive release mechanisms (pH, temperature) for site-specific drug delivery.", solves:"Concentrates drug action exactly where it's needed, reducing side effects elsewhere in the body.", examples:["Antibody-targeted nanoparticles for tumor-specific chemotherapy","pH-triggered drug release in the acidic tumor environment","Temperature-triggered release for localized hyperthermia therapy"]},
+    {id:"nanotoxicology", title:"Nanotoxicology", img:"toxicology,nanoparticle,safety",
+      desc:"Assessment of biodistribution, clearance and potential toxicity of nanomaterials within biological systems.", solves:"Ensures nanoscale materials don't cause unexpected harm before they're approved for patient use.", examples:["Testing nanoparticle clearance through kidneys and liver","Assessing inhaled nanoparticle lung toxicity","Screening nanomaterial biodistribution before clinical trials"]},
+    {id:"theranostics", title:"Theranostics", img:"theranostics,imaging,nanomedicine",
+      desc:"Combined diagnostic-therapeutic nanoplatforms enabling simultaneous imaging and treatment, notably in oncology.", solves:"Lets clinicians see and treat disease with a single agent, streamlining cancer care.", examples:["Combined PET-imaging and radiotherapy nanoparticles","Iron-oxide nanoparticles for MRI-guided tumor ablation","Gold nanoparticles for imaging and photothermal cancer therapy"]}
+  ]
+}
+];
+
+/* =========================================================
+   BUILD SIDEBAR TREE
+   ========================================================= */
+const treeEl = document.getElementById("tree");
+
+function buildTree(){
+  treeEl.innerHTML = "";
+  DOMAINS.forEach((d, idx) => {
+    const domDiv = document.createElement("div");
+    domDiv.className = "dom";
+    domDiv.dataset.domId = d.id;
+
+    const toggle = document.createElement("button");
+    toggle.className = "dom-toggle";
+    toggle.innerHTML = `<span class="num">${String(idx+1).padStart(2,"0")}</span><span class="label">${d.title}</span><span class="chevron">▶</span>`;
+    toggle.addEventListener("click", () => {
+      const isOpen = domDiv.classList.contains("open");
+      document.querySelectorAll(".dom").forEach(el => el.classList.remove("open"));
+      if(!isOpen) domDiv.classList.add("open");
+      navigateTo(d.id);
+    });
+
+    const ul = document.createElement("ul");
+    ul.className = "sublist";
+    d.subs.forEach(s => {
+      const li = document.createElement("li");
+      const a = document.createElement("a");
+      a.href = `#${d.id}/${s.id}`;
+      a.textContent = s.title;
+      a.dataset.domId = d.id;
+      a.dataset.subId = s.id;
+      a.addEventListener("click", (e) => {
+        e.preventDefault();
+        navigateTo(d.id, s.id);
+      });
+      li.appendChild(a);
+      ul.appendChild(li);
+    });
+
+    domDiv.appendChild(toggle);
+    domDiv.appendChild(ul);
+    treeEl.appendChild(domDiv);
+  });
+}
+buildTree();
+
+/* =========================================================
+   IMAGES MANUELLES
+   Renseignez ici les images que vous voulez insérer vous-même.
+   Ces images remplacent totalement la recherche automatique
+   (Wikimedia Commons / placeholder) pour la clé concernée —
+   aucune requête réseau n'est faite pour cette image.
+
+   Clé pour l'image principale (hero) d'un domaine : l'id du domaine
+     ex: "biomechanics": "images/biomechanics-hero.jpg"
+
+   Clé pour l'image d'un sous-domaine (miniature + figure) :
+     "idDomaine/idSousDomaine"
+     ex: "biomechanics/kinematics": "images/gait-lab.jpg"
+
+   Les valeurs peuvent être :
+     - un chemin relatif vers un fichier local (ex: "images/photo.jpg")
+     - une URL complète (ex: "https://monsite.com/photo.jpg")
+
+   Les identifiants (id de domaine / de sous-domaine) sont visibles
+   dans le tableau DOMAINS ci-dessus, et aussi dans l'URL de chaque
+   page (ex: #biomechanics/kinematics).
+   ========================================================= */
+const MANUAL_IMAGES = {
+  "biomechanics": "Biomecanics2.jpg",
+  "biomechanics/kinematics": "Kinematics.png",
+  "biomechanics/musculoskeletal": "musculoskeletal.jpeg",
+  "biomechanics/ortho-implant": "Orthopaedics.jpg",
+  "biomaterials": "biomateriales.jpg",
+  "biomaterials/metallic": "metalic_biomat.jpg",
+  "biomaterials/polymeric": "polemic.jpg",
+  "biomaterials/ceramics": "ceramic.png",
+  "biomaterials/biocompat": "biocompatibility.jpg",
+  "biomaterials/smart-mat": "Bioresorbable.jpg",
+  "tissue-eng": "tissue_engineering.jpg",
+  "tissue-eng/scaffold": "scaffolds_tussue.png",
+  "tissue-eng/stem-cells": "stem_cell.png",
+  "tissue-eng/bioreactors": "bioreactor.png",
+  "tissue-eng/vascularization": "vascular.png",
+  "tissue-eng/bioprinting": "bioprinter.jpg",
+  "bioinstrumentation": "bioinstrument.jpg",
+  "bioinstrumentation/device-safety": "Medicaldevice.jpg",
+  "bioinstrumentation/transducers": "traducer.jpeg",
+  "bioinstrumentation/amplifiers": "bioempli.jpg",
+  "compartmental":"compartment.jpeg",
+  "compartmental/ode-systems":"ode.png",
+  "compartmental/multicompartment":"multicomp.jpg",
+  "compartmental/param-estimation":"parameterestimation.png",
+  "compartmental/pk-models":"pharmaco.jpg",
+  "biosensors":"biosensor.jpeg",
+  "biosensors/physical-sensors":"physical_sensor.jpg",
+  "biosensors/chem-biosensors":"chemicalsensor.png",
+  "biosensors/optical-sensors":"opticalsensor.png",
+  "biosensors/mems":"mem.jpg",
+  "enzyme-kinetics/bioreactor-kinetics":"bioreactors.jpg",
+  "biosignal":"signal.png",
+  "biosignal/time-freq":"timefreq.png",
+  "biosignal/filtering":"noisefilter.jpeg",
+  "biosignal/wavelet":"wavelet.jpg",
+  "biosignal/ml-biosignal":"ml.jpg",
+  "bioelectric":"bioelec.jpg",
+  "bioelectric/action-potential":"action.jpg",
+  "bioelectric/neural-electro":"neural.jpeg",
+  "radiation-imaging": "radio.jpg",
+  "radiation-imaging/xray-ct": "xray.png",
+  "radiation-imaging/nuclear-med": "nuclear.jpeg",
+  "radiation-imaging/dosimetry": "radiodosimetry.png",
+  "radiation-imaging/reconstruction": "imreconst.png",
+  "physio-modeling/control-systems": "controsys.jpg",
+  "bio-optics/light-tissue": "light.jpeg",
+  "transport": "biotransport.png",
+  "transport/diffusion-convection": "diffusion.png",
+  "transport/drug-transport": "drugdelivery.png",
+  "transport/membrane-transport": "mambranetransport.png",
+  "transport/heat-transfer": "heat.jpg",
+  "computational-cell" : "computationalcell.jpg",
+  "computational-cell/systems-biology": "systemsbiology.jpg",
+  "computational-cell/agent-based": "agent.png",
+  "computational-cell/nonlinear-dynamics": "nonlinear.jpg",
+  "computational-cell/signal-transduction": "signal.png",
+  "genomics" : "gene.jpg",
+  "genomics/transcriptomics": "gene.jpg",
+  "genomics/structural-bioinfo": "gene.jpg",
+  "genomics/ml-genomics": "MLgene.png",
+  "neural-eng" : "neural_engineering.jpg",
+  "neural-eng/bci": "brain.jpg",
+  "neural-eng/neural-decoding": "neuraldecoding.jpg",
+  "neural-eng/neurostimulation": "brainstimulation.png",
+  "neural-eng/neuroprosthetics": "neuroprostetic.jpeg",
+  "rehab-robotics" : "rehab.jpg",
+  "rehab-robotics/prosthetics-orthotics": "prostetic.jpeg",
+  "rehab-robotics/exoskeletons": "exos.jpg",   
+  "nano-drug" : "nano.jpeg",
+  "nano-drug/nanoparticles": "nano-drug.jpg",
+  "nano-drug/targeted-release": "target.png",
+  "nano-drug/nanotoxicology": "nanotoxicology.jpg",
+  "nano-drug/theranostics": "thera.png"  
+};
+
+/* =========================================================
+   FLATTEN PAGES FOR NEXT/PREV NAVIGATION
+   ========================================================= */
+const FLAT_PAGES = [{type:"home"}];
+DOMAINS.forEach(d => {
+  FLAT_PAGES.push({type:"domain", domId:d.id});
+  d.subs.forEach(s => FLAT_PAGES.push({type:"sub", domId:d.id, subId:s.id}));
+});
+
+function imgUrl(keywords, w=800, h=450){
+  // Immediate fallback (renders instantly); replaced by a real photo from
+  // Wikimedia Commons as soon as enhanceImages() resolves the live search below.
+  return `https://loremflickr.com/${w}/${h}/${encodeURIComponent(keywords)}?lock=${Math.abs(hashCode(keywords))%5000}`;
+}
+function hashCode(s){let h=0;for(let i=0;i<s.length;i++){h=(h<<5)-h+s.charCodeAt(i);h|=0;}return h;}
+
+/* =========================================================
+   REAL IMAGE SEARCH — Wikimedia Commons (live, in-browser)
+   For every image slot we asynchronously search Wikimedia Commons
+   (a free, CORS-enabled media repository) for a real photo matching
+   the topic's keywords, and swap it in once found. If the search
+   fails (offline, blocked, no result) the loremflickr placeholder
+   set above stays in place, so the page never breaks.
+   ========================================================= */
+const commonsCache = {};
+async function fetchCommonsImage(keywords){
+  if(commonsCache[keywords] !== undefined) return commonsCache[keywords];
+  const terms = keywords.split(",").slice(0,3).join(" ");
+  const q = encodeURIComponent(`${terms} medical`);
+  const url = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrsearch=filetype:bitmap%7Cdrawing%20${q}&gsrlimit=1&prop=imageinfo&iiprop=url&iiurlwidth=900&format=json&origin=*`;
+  let result = null;
+  try{
+    const res = await fetch(url);
+    if(res.ok){
+      const data = await res.json();
+      const pages = data && data.query && data.query.pages;
+      if(pages){
+        const page = Object.values(pages)[0];
+        const info = page && page.imageinfo && page.imageinfo[0];
+        result = (info && (info.thumburl || info.url)) || null;
+      }
+    }
+  }catch(e){ /* CORS / offline / rate-limit: silently keep fallback */ }
+  commonsCache[keywords] = result;
+  return result;
+}
+function enhanceImages(root){
+  const imgs = root.querySelectorAll("img[data-imgkey]");
+  imgs.forEach(async img => {
+    // Image insérée manuellement : elle est déjà affichée, on ne va pas
+    // chercher de remplacement automatique.
+    if(img.dataset.path && MANUAL_IMAGES[img.dataset.path]){
+      img.classList.remove("async-img");
+      return;
+    }
+    const key = decodeURIComponent(img.dataset.imgkey);
+    const real = await fetchCommonsImage(key);
+    if(real){
+      const test = new Image();
+      test.onload = () => { img.src = real; img.classList.remove("async-img"); };
+      test.onerror = () => { img.classList.remove("async-img"); };
+      test.src = real;
+    } else {
+      img.classList.remove("async-img");
+    }
+  });
+}
+
+/* =========================================================
+   RENDER FUNCTIONS
+   ========================================================= */
+const content = document.getElementById("content");
+
+function findPageIndex(domId, subId){
+  return FLAT_PAGES.findIndex(p => p.domId===domId && p.subId===subId);
+}
+function findDomainIndex(domId){
+  return FLAT_PAGES.findIndex(p => p.type==="domain" && p.domId===domId);
+}
+
+function pagerHTML(currentIdx){
+  const prev = FLAT_PAGES[currentIdx-1];
+  const next = FLAT_PAGES[currentIdx+1];
+  function label(p){
+    if(!p) return null;
+    if(p.type==="home") return "Course Overview";
+    const dom = DOMAINS.find(d=>d.id===p.domId);
+    if(p.type==="domain") return dom.title;
+    const sub = dom.subs.find(s=>s.id===p.subId);
+    return sub.title;
+  }
+  function href(p){
+    if(!p) return "#";
+    if(p.type==="home") return "#";
+    if(p.type==="domain") return `#${p.domId}`;
+    return `#${p.domId}/${p.subId}`;
+  }
+  let html = `<div class="pager">`;
+  html += prev ? `<a class="prev" href="${href(prev)}"><span class="dir">◀ Previous</span>${label(prev)}</a>` : `<span></span>`;
+  html += next ? `<a class="next" href="${href(next)}"><span class="dir">Next ▶</span>${label(next)}</a>` : `<span></span>`;
+  html += `</div>`;
+  return html;
+}
+
+
+/* ===== PEDAGOGICAL MAP: families + cross-domain links ===== */
+const LEARNING_FAMILIES = [
+  {
+    title: "I · Biological & Physiological Foundations",
+    intro: "Understand the living system first: cells, tissues, organs, physiology and biochemical mechanisms.",
+    domains: ["enzyme-kinetics", "physio-modeling", "bioelectric", "computational-cell", "genomics"]
+  },
+  {
+    title: "II · Engineering Sciences & Quantitative Methods",
+    intro: "Apply mechanics, transport, modeling, signals and quantitative reasoning to biological systems.",
+    domains: ["biomechanics", "compartmental", "transport", "biosignal"]
+  },
+  {
+    title: "III · Measurement, Devices & Biomedical Technologies",
+    intro: "Measure biology and turn physical principles into sensors, instruments, imaging and therapeutic technologies.",
+    domains: ["biosensors", "bioinstrumentation", "radiation-imaging", "medical-imaging", "bio-optics"]
+  },
+  {
+    title: "IV · Materials, Regeneration & Advanced Delivery",
+    intro: "Design materials and engineered biological environments that interact safely with the body.",
+    domains: ["biomaterials", "tissue-eng", "nano-drug"]
+  },
+  {
+    title: "V · Neural, Rehabilitation & Clinical Translation",
+    intro: "Move from engineering principles to assistive systems, neurotechnology, healthcare deployment and regulation.",
+    domains: ["neural-eng", "rehab-robotics", "clinical-eng"]
+  }
+];
+
+const DOMAIN_CONNECTIONS = {
+  "biomechanics": ["rehab-robotics", "biomaterials", "tissue-eng", "physio-modeling"],
+  "biomaterials": ["tissue-eng", "nano-drug", "clinical-eng", "biomechanics"],
+  "tissue-eng": ["biomaterials", "biomechanics", "transport", "computational-cell", "nano-drug"],
+  "bioinstrumentation": ["biosensors", "biosignal", "bioelectric", "clinical-eng"],
+  "compartmental": ["enzyme-kinetics", "transport", "physio-modeling", "nano-drug"],
+  "biosensors": ["bioinstrumentation", "bioelectric", "biosignal", "nano-drug"],
+  "enzyme-kinetics": ["compartmental", "computational-cell", "transport", "genomics"],
+  "biosignal": ["bioelectric", "bioinstrumentation", "neural-eng", "medical-imaging"],
+  "bioelectric": ["biosignal", "bioinstrumentation", "neural-eng", "physio-modeling"],
+  "radiation-imaging": ["medical-imaging", "biosignal", "clinical-eng", "physio-modeling"],
+  "physio-modeling": ["compartmental", "bioelectric", "biomechanics", "transport", "biosignal"],
+  "bio-optics": ["biosensors", "medical-imaging", "nano-drug", "clinical-eng"],
+  "transport": ["tissue-eng", "compartmental", "nano-drug", "physio-modeling"],
+  "computational-cell": ["enzyme-kinetics", "genomics", "physio-modeling", "tissue-eng"],
+  "genomics": ["computational-cell", "enzyme-kinetics", "clinical-eng"],
+  "medical-imaging": ["radiation-imaging", "bio-optics", "biosignal", "clinical-eng"],
+  "neural-eng": ["bioelectric", "biosignal", "bioinstrumentation", "rehab-robotics", "clinical-eng"],
+  "rehab-robotics": ["biomechanics", "neural-eng", "bioinstrumentation", "clinical-eng"],
+  "clinical-eng": ["bioinstrumentation", "biomaterials", "medical-imaging", "neural-eng", "rehab-robotics"],
+  "nano-drug": ["biomaterials", "transport", "bio-optics", "clinical-eng", "tissue-eng"]
+};
+
+const FOUNDATIONS = [
+  ["Mathematics", "Calculus · differential equations · linear algebra · probability & statistics · numerical methods"],
+  ["Engineering", "Mechanics · fluid mechanics · thermodynamics & heat transfer · electronics · control systems · signals & systems"],
+  ["Biology & Medicine", "Cell biology · anatomy · physiology · biochemistry · molecular biology"],
+  ["Computing", "Programming · data analysis · simulation · scientific computing · machine learning" ]
+];
+
+function domainById(id){ return DOMAINS.find(d=>d.id===id); }
+function domainLink(id){ const d=domainById(id); return d ? `<a class="map-link" href="#${d.id}">${d.title}</a>` : ""; }
+
+function renderHome(){
+  const totalSubs = DOMAINS.reduce((n,d)=>n+d.subs.length,0);
+  const totalExamples = DOMAINS.reduce((n,d)=>n+d.subs.reduce((m,s)=>m+s.examples.length,0),0);
+  let html = `
+    <div class="badge">Full Panorama</div>
+    <h1 class="page-title">Panorama of Biomedical Engineering</h1>
+    <p style="text-align: justify;">A structured tour of biomedical engineering that shows both the <em>domains</em> and the <em>relationships between them</em>. Use the map as a learning path: start from biological, physiological and engineering foundations, move through measurement and computation, then reach biomedical technologies and clinical translation.</p>
+    <img  src="bgc2.jpg" style="border-radius: 10px;" height="520" width="880" alt="Biomedical Engineering">
+    <div class="stats-bar">
+      <div class="stat-card"><div class="stat-num">${DOMAINS.length}</div><div class="stat-label">Domains</div></div>
+      <div class="stat-card"><div class="stat-num">${totalSubs}</div><div class="stat-label">Sub-domains</div></div>
+      <div class="stat-card"><div class="stat-num">${totalExamples}+</div><div class="stat-label">Real-world applications</div></div>
+    </div>
+
+    <div class="section-block">
+      <h2>How to Read the Map</h2>
+      <p>This panorama is intentionally organized as a <strong>learning map rather than a rigid taxonomy</strong>. Biomedical engineering is highly interconnected: one topic can belong to several scientific and engineering pathways. The five families below provide orientation, while the links between domains show where knowledge is reused.</p>
+      <div class="learning-flow">
+        <div class="flow-step">Foundations</div><div class="flow-arrow">→</div>
+        <div class="flow-step">Engineering &amp; Quantitative Methods</div><div class="flow-arrow">→</div>
+        <div class="flow-step">Measurement &amp; Modeling</div><div class="flow-arrow">→</div>
+        <div class="flow-step">Biomedical Technologies</div><div class="flow-arrow">→</div>
+        <div class="flow-step">Clinical Translation</div>
+      </div>
+    </div>
+
+    <div class="learning-intro">
+      <div class="learning-panel">
+        <h3>Foundations students should connect early</h3>
+        <p>These are transversal prerequisites that recur across many of the domains in the course.</p>
+        <div class="foundation-grid">
+          ${FOUNDATIONS.map(f=>`<div class="foundation-item"><strong>${f[0]}</strong><span>${f[1]}</span></div>`).join("")}
+        </div>
+      </div>
+      <div class="learning-panel">
+        <h3>Why connections matter</h3>
+        <p>For example, <strong>Bioelectric Phenomena</strong> naturally connects to biosignal processing, bioinstrumentation and neural engineering. Likewise, biomaterials, tissue engineering, transport and nanotechnology form a connected pathway rather than isolated subjects.</p>
+        <p style="margin-bottom:0;opacity:.78">The domain pages now expose these connections explicitly.</p>
+      </div>
+    </div>
+
+    <div class="section-block">
+      <h2>Biomedical Engineering, Five Learning Families</h2>
+      <div class="family-list">
+        ${LEARNING_FAMILIES.map(f=>`<div class="family-block">
+          <h3>${f.title}</h3><p class="family-intro">${f.intro}</p>
+          <div class="family-domains">${f.domains.map(domainLink).join("")}</div>
+        </div>`).join("")}
+      </div>
+    </div>
+
+    <div class="section-block">
+      <h2>All Domains</h2>
+      <p>Use this complete list when you want to browse the course directly.</p>
+      <div class="overview-grid">`;
+  DOMAINS.forEach((d, idx) => {
+    html += `
+        <a class="overview-card" href="#${d.id}">
+          <div class="n">DOMAIN ${String(idx+1).padStart(2,"0")}</div>
+          <h3>${d.title}</h3>
+          <p>${d.intro.split(". ")[0]}.</p>
+        </a>`;
+  });
+  html += `</div></div>`;
+  html += pagerHTML(0);
+  content.innerHTML = html;
+  enhanceImages(content);
+}
+
+function renderDomain(d, idx){
+  let html = `
+    <div class="breadcrumb"><a href="#">Course</a> / ${d.title}</div>
+    <div class="badge">Domain ${String(idx+1).padStart(2,"0")}</div>
+    <h1 class="page-title">${d.title}</h1>
+    <p class="subtitle">${d.intro}</p>
+    <img class="hero-img${MANUAL_IMAGES[d.id]?"":" async-img"}" data-imgkey="${encodeURIComponent(d.img)}" data-path="${d.id}" src="${MANUAL_IMAGES[d.id] || imgUrl(d.img,1200,420)}" alt="${d.title}">
+    <div class="syn-box">
+      <div class="syn-icon">💡</div>
+      <div>
+        <div class="syn-label">Key Insight</div>
+        <p>${d.insight}</p>
+      </div>
+    </div>
+    <div class="connection-box">
+      <h3>Connects to</h3>
+      <p>This domain is part of a network, not an isolated branch.</p>
+      <div class="connection-list">${(DOMAIN_CONNECTIONS[d.id]||[]).map(domainLink).join("")}</div>
+    </div>
+    <div class="section-block">
+      <h2>Sub-domains</h2>
+      <div class="card-grid">`;
+  d.subs.forEach((s, i) => {
+    const subPath = `${d.id}/${s.id}`;
+    const subManual = MANUAL_IMAGES[subPath];
+    html += `
+        <a class="card" href="#${d.id}/${s.id}">
+          <img class="${subManual?"":"async-img"}" data-imgkey="${encodeURIComponent(s.img)}" data-path="${subPath}" src="${subManual || imgUrl(s.img,400,220)}" alt="${s.title}">
+          <div class="card-body">
+            <div class="k">${String(i+1).padStart(2,"0")}</div>
+            <h4>${s.title}</h4>
+            <p>${s.desc}</p>
+          </div>
+        </a>`;
+  });
+  html += `</div></div>`;
+  html += pagerHTML(findDomainIndex(d.id));
+  content.innerHTML = html;
+  enhanceImages(content);
+}
+
+function renderSub(d, s){
+  const idx = d.subs.findIndex(x=>x.id===s.id);
+  const subPath = `${d.id}/${s.id}`;
+  const subManual = MANUAL_IMAGES[subPath];
+  let html = `
+    <div class="breadcrumb"><a href="#">Course</a> / <a href="#${d.id}">${d.title}</a> / ${s.title}</div>
+    <div class="badge">${d.title} · Sub-domain ${String(idx+1).padStart(2,"0")}</div>
+    <h1 class="page-title">${s.title}</h1>
+    <div class="section-block">
+      <div class="sub-figure">
+        <img class="${subManual?"":"async-img"}" data-imgkey="${encodeURIComponent(s.img)}" data-path="${subPath}" src="${subManual || imgUrl(s.img,600,400)}" alt="${s.title}">
+        <div>
+          <p>${s.desc}</p>
+          <div class="tag-row">
+            <span class="tag">${d.title}</span>
+            <span class="tag">${s.title}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="section-block">
+      <h2>What It Does &amp; The Problem It Solves</h2>
+      <p>${s.solves}</p>
+      <h3>Real-World Examples</h3>
+      <div class="card-grid" style="grid-template-columns:1fr;">
+        ${s.examples.map(ex => `<div class="tag-row" style="margin-bottom:0;"><span class="tag" style="font-size:13px; padding:6px 10px;">✓ ${ex}</span></div>`).join("")}
+      </div>
+    </div>
+    <div class="connection-box">
+      <h3>Where this sub-domain leads</h3>
+      <p>Its immediate conceptual neighborhood is the parent domain plus the connected biomedical fields below.</p>
+      <div class="connection-list">
+        <a class="map-link" href="#${d.id}">${d.title}</a>
+        ${(DOMAIN_CONNECTIONS[d.id]||[]).slice(0,4).map(domainLink).join("")}
+      </div>
+    </div>`;
+  html += pagerHTML(findPageIndex(d.id, s.id));
+  content.innerHTML = html;
+  enhanceImages(content);
+}
+
+function updateActiveStates(domId, subId){
+  document.querySelectorAll(".dom").forEach(el => {
+    el.classList.toggle("active", el.dataset.domId === domId);
+    if(el.dataset.domId === domId) el.classList.add("open");
+  });
+  document.querySelectorAll(".sublist a").forEach(a => {
+    a.classList.toggle("active", a.dataset.domId===domId && a.dataset.subId===subId);
+  });
+}
+
+/* =========================================================
+   ROUTER
+   ========================================================= */
+function navigateTo(domId, subId){
+  if(!domId){ location.hash = ""; }
+  else if(!subId){ location.hash = `#${domId}`; }
+  else{ location.hash = `#${domId}/${subId}`; }
+}
+
+function route(){
+  const hash = location.hash.replace(/^#/, "");
+  window.scrollTo(0,0);
+  if(!hash){
+    updateActiveStates(null,null);
+    renderHome();
+    return;
+  }
+  const [domId, subId] = hash.split("/");
+  const d = DOMAINS.find(x=>x.id===domId);
+  if(!d){ renderHome(); return; }
+  if(!subId){
+    updateActiveStates(domId,null);
+    renderDomain(d, DOMAINS.indexOf(d));
+    return;
+  }
+  const s = d.subs.find(x=>x.id===subId);
+  if(!s){ updateActiveStates(domId,null); renderDomain(d, DOMAINS.indexOf(d)); return; }
+  updateActiveStates(domId, subId);
+  renderSub(d, s);
+}
+window.addEventListener("hashchange", route);
+route();
+
+/* =========================================================
+   SEARCH / FILTER
+   ========================================================= */
+document.getElementById("search").addEventListener("input", (e) => {
+  const q = e.target.value.trim().toLowerCase();
+  document.querySelectorAll(".dom").forEach(domEl => {
+    const domId = domEl.dataset.domId;
+    const d = DOMAINS.find(x=>x.id===domId);
+    const domMatch = d.title.toLowerCase().includes(q);
+    let anySubMatch = false;
+    domEl.querySelectorAll(".sublist a").forEach(a => {
+      const match = a.textContent.toLowerCase().includes(q);
+      a.parentElement.style.display = (q==="" || match || domMatch) ? "" : "none";
+      if(match) anySubMatch = true;
+    });
+    const show = q==="" || domMatch || anySubMatch;
+    domEl.style.display = show ? "" : "none";
+    if(q!=="" && anySubMatch) domEl.classList.add("open");
+  });
+});
+
+/* =========================================================
+   MOBILE MENU
+   ========================================================= */
+document.getElementById("menu-btn").addEventListener("click", () => {
+  document.getElementById("sidebar").classList.toggle("show");
+});
+document.addEventListener("click", (e) => {
+  const sb = document.getElementById("sidebar");
+  const btn = document.getElementById("menu-btn");
+  if(window.innerWidth<=900 && sb.classList.contains("show") && !sb.contains(e.target) && e.target!==btn){
+    sb.classList.remove("show");
+  }
+});
+
+/* =========================================================
+   FOOTER YEAR
+   ========================================================= */
+document.getElementById("footer-year").textContent = new Date().getFullYear();
+</script>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-col footer-brand">
+      <h3>Biomedical Engineering</h3>
+      <p>A panoramic learning map of biomedical engineering, twenty domains and eighty-three sub-domains, organized by learning families and connected across biomechanics, biology, computation, devices, imaging, neural engineering and clinical translation.</p>
+      <a class="footer-affiliation" href="https://evida.deusto.es/" target="_blank" rel="noopener">
+        <span class="evida-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 12h5l2-7 4 14 2-7h7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span class="evida-text">
+          <span class="k">Affiliated research group</span>
+          <span class="v">eVida · University of Deusto</span>
+        </span>
+      </a>
+    </div>
+    <div class="footer-col">
+      <h4>Course</h4>
+      <ul>
+        <li><a href="#">Course overview</a></li>
+        <li><a href="#biomechanics">Biomechanics</a></li>
+        <li><a href="#biomaterials">Biomaterials</a></li>
+        <li><a href="#genomics">Genomics &amp; Bioinformatics</a></li>
+        <li><a href="#neural-eng">Neural Engineering</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Study Resources</h4>
+      <ul>
+        <li>Use the sidebar search to filter topics instantly</li>
+        <li>Each sub-domain lists real-world clinical &amp; industry examples</li>
+        <li>Navigate sequentially with the Previous / Next pager</li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>About This Resource</h4>
+      <ul class="footer-plain">
+        <li>Built as an open, self-contained study reference</li>
+        <li>Photography courtesy of Wikimedia Commons contributors</li>
+        <li>For educational use in biomedical engineering curricula</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© <span id="footer-year"></span> <a href="https://evida.deusto.es/">eVida-Deusto</a> </span>
+  </div>
+</footer>
+</body>
+</html>
