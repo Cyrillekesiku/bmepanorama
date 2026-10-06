@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Descriptive and inferential statistics — Biomedical Data Analysis</title>
+<meta name="description" content="Biomedical data analysis lab with Python on Emotiv EPOC X EEG data.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='9' fill='%231f62b8'/%3E%3Cpath d='M5 22h6l3-9 5 17 4-13 3 5h9' fill='none' stroke='white' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/css/style.css">
+<script>
+(function(){try{var t=localStorage.getItem('bda-theme');if(!t&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)t='dark';document.documentElement.setAttribute('data-theme',t||'light');}catch(e){}})();
+window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};
+</script>
+<script defer src="assets/js/mathjax-tex-svg.js"></script>
+<script defer src="assets/js/search-data.js"></script>
+<script defer src="assets/js/main.js"></script>
+</head>
+<body>
+<a class="skip" href="#main-content">Skip to main content</a>
+<nav class="sidebar" aria-label="Main navigation"><a class="logo" href="index.html"><svg width="38" height="38" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#1f62b8"/><path d="M5 22h6l3-9 5 17 4-13 3 5h9" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>Biomedical Data Analysis</b><small>EEG signals with Python</small></span></a><div class="nav-group">Welcome</div><ul><li><a href="index.html">Prologue: the lab at a glance</a></li></ul><div class="nav-group">Know your signal</div><ul><li><a href="01-neurons-to-numbers.html"><span class="num">1</span>From neurons to numbers</a></li><li><a href="02-dataset.html"><span class="num">2</span>The dataset: every variable</a></li></ul><div class="nav-group">Load, inspect, clean</div><ul><li><a href="03-time-axis.html"><span class="num">3</span>Time axis and sampling rate</a></li><li><a href="04-signal-quality.html"><span class="num">4</span>Signal quality and artifacts</a></li></ul><div class="nav-group">Statistics on signals</div><ul><li><a href="05-statistics.html" class="current"><span class="num">5</span>Descriptive and inferential statistics</a></li></ul><div class="nav-group">Signal processing</div><ul><li><a href="06-sampling-fourier.html"><span class="num">6</span>Sampling, aliasing, Fourier</a></li><li><a href="07-filtering.html"><span class="num">7</span>Digital filtering</a></li><li><a href="08-rhythms.html"><span class="num">8</span>Rhythms and spectrograms</a></li></ul><div class="nav-group">Lab</div><ul><li><a href="09-lab-pipeline.html"><span class="num">9</span>Pipeline and mini-project</a></li></ul><div class="nav-group">References</div><ul><li><a href="10-summary.html"><span class="num">10</span>Summary and references</a></li></ul><div class="sb-foot">Lab module · 2 hours<br>Data: Emotiv EPOC X, 14-channel EEG<br>Python · NumPy · SciPy · pandas · Matplotlib</div></nav>
+<div class="scrim"></div>
+<div class="main">
+<div class="article-wrap">
+<div class="article-col">
+  <div class="header-bar">
+    <button class="hbtn" id="sbToggle" aria-label="Toggle navigation"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+    <span class="crumb">Biomedical Data Analysis / Descriptive and inferential statistics</span>
+    <span class="spacer"></span>
+    <button class="hbtn searchBtn" aria-label="Search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><span class="lbl">Search</span><kbd>Ctrl K</kbd></button>
+    <a class="hbtn" href="assets/lab_code.py" download title="Download all code of the lab as a Python script"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg><span class="lbl">.py</span></a>
+    <button class="hbtn" id="printBtn" title="Print or save as PDF" aria-label="Print"><svg viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4v-7h16v7h-2M7 14h10v7H7z"/></svg><span class="lbl">.pdf</span></button>
+    <button class="hbtn" id="fsBtn" title="Focus mode" aria-label="Focus mode"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+    <button class="hbtn" id="themeBtn" title="Light / dark" aria-label="Toggle dark mode"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+  </div>
+  <article id="main-content">
+    
+<h1 id="descriptive-and-inferential-statistics-on-signals">Descriptive and inferential statistics on signals<a class="headerlink" href="#descriptive-and-inferential-statistics-on-signals" title="Permalink to this heading">#</a></h1>
+<p class="meta-line">Statistics on signals</p>
+<div class="admonition objectives"><p class="admonition-title">Learning objectives</p><div class="adm-body">
+<ul>
+<li>Summarise a signal with location, spread and shape statistics, and choose <em>robust</em> ones when artifacts are present.</li>
+<li>Check normality with a histogram and a Q–Q plot, and interpret skewness and kurtosis.</li>
+<li>Understand why the usual i.i.d. formulas fail for time series: autocorrelation, effective sample size, block bootstrap.</li>
+<li>Measure dependence between channels (Pearson correlation) and relate it to distance.</li>
+<li>Run and interpret paired and independent two-sample tests, effect sizes, confidence intervals and multiple-comparison corrections.</li>
+</ul></div></div>
+<p class="lead">You already know the toolbox of second-year statistics: mean, variance, confidence intervals, \(t\)-tests, correlation. The point of this chapter is to <strong>use it correctly on a signal</strong>, where observations are neither independent nor Gaussian.</p>
+
+<h2 id="descriptive-statistics-of-the-14-channels">Descriptive statistics of the 14 channels<a class="headerlink" href="#descriptive-statistics-of-the-14-channels" title="Permalink to this heading">#</a></h2>
+<div class="admonition definition"><p class="admonition-title">Definition: Location, spread and shape</p><div class="adm-body">
+<p>Mean \(\bar x = \frac1N\sum x_n\); standard deviation \(s=\sqrt{\frac{1}{N-1}\sum (x_n-\bar x)^2}\); median; <strong>MAD</strong> (median absolute deviation) \(\mathrm{MAD}=\mathrm{median}|x_n-\mathrm{median}(x)|\), scaled by 1.4826 so that it equals \(\sigma\) for Gaussian data; <strong>skewness</strong> (asymmetry, 0 for a Gaussian) and <strong>excess kurtosis</strong> (tail weight, 0 for a Gaussian).</p></div></div>
+<div class="cell"><div class="cell_input"><div class="highlight"><pre><span class="n">desc</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s2">&quot;mean&quot;</span><span class="p">:</span> <span class="n">X</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+    <span class="s2">&quot;std&quot;</span><span class="p">:</span> <span class="n">X</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+    <span class="s2">&quot;median&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+    <span class="s2">&quot;MAD (scaled)&quot;</span><span class="p">:</span> <span class="n">stats</span><span class="o">.</span><span class="n">median_abs_deviation</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="s2">&quot;normal&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;skewness&quot;</span><span class="p">:</span> <span class="n">stats</span><span class="o">.</span><span class="n">skew</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+    <span class="s2">&quot;excess kurtosis&quot;</span><span class="p">:</span> <span class="n">stats</span><span class="o">.</span><span class="n">kurtosis</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+<span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="n">CH</span><span class="p">)</span>
+<span class="n">desc</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</pre></div><button class="copybtn" title="Copy code" aria-label="Copy code">Copy</button></div><div class="cell_output df_out"><table class="dataframe dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>mean</th>
+      <th>std</th>
+      <th>median</th>
+      <th>MAD (scaled)</th>
+      <th>skewness</th>
+      <th>excess kurtosis</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>af3</th>
+      <td>0.1</td>
+      <td>54.06</td>
+      <td>-0.86</td>
+      <td>33.03</td>
+      <td>0.33</td>
+      <td>9.72</td>
+    </tr>
+    <tr>
+      <th>f7</th>
+      <td>0.1</td>
+      <td>52.47</td>
+      <td>0.88</td>
+      <td>31.98</td>
+      <td>-0.08</td>
+      <td>7.14</td>
+    </tr>
+    <tr>
+      <th>f3</th>
+      <td>0.09</td>
+      <td>40.07</td>
+      <td>0.57</td>
+      <td>26.27</td>
+      <td>-0.01</td>
+      <td>7.97</td>
+    </tr>
+    <tr>
+      <th>fc5</th>
+      <td>0.12</td>
+      <td>39.27</td>
+      <td>0.4</td>
+      <td>23.98</td>
+      <td>0.34</td>
+      <td>10.03</td>
+    </tr>
+    <tr>
+      <th>t7</th>
+      <td>0.16</td>
+      <td>50.85</td>
+      <td>-0.1</td>
+      <td>21.21</td>
+      <td>0.1</td>
+      <td>15.19</td>
+    </tr>
+    <tr>
+      <th>p7</th>
+      <td>-0.43</td>
+      <td>105</td>
+      <td>1.68</td>
+      <td>53.55</td>
+      <td>-0.88</td>
+      <td>14.09</td>
+    </tr>
+    <tr>
+      <th>o1</th>
+      <td>-0</td>
+      <td>77.95</td>
+      <td>0.09</td>
+      <td>42.35</td>
+      <td>-0.66</td>
+      <td>8.94</td>
+    </tr>
+    <tr>
+      <th>o2</th>
+      <td>-0.01</td>
+      <td>97.21</td>
+      <td>0.34</td>
+      <td>45.51</td>
+      <td>-0.59</td>
+      <td>8.61</td>
+    </tr>
+    <tr>
+      <th>p8</th>
+      <td>0</td>
+      <td>100</td>
+      <td>0.03</td>
+      <td>49.68</td>
+      <td>-0.32</td>
+      <td>6.73</td>
+    </tr>
+    <tr>
+      <th>t8</th>
+      <td>0.02</td>
+      <td>57.63</td>
+      <td>0.17</td>
+      <td>26.91</td>
+      <td>0.54</td>
+      <td>15.41</td>
+    </tr>
+    <tr>
+      <th>fc6</th>
+      <td>0.16</td>
+      <td>52.23</td>
+      <td>0.47</td>
+      <td>32.85</td>
+      <td>-0.19</td>
+      <td>11.96</td>
+    </tr>
+    <tr>
+      <th>f4</th>
+      <td>0.16</td>
+      <td>55.81</td>
+      <td>0.84</td>
+      <td>37.63</td>
+      <td>-0.3</td>
+      <td>6.08</td>
+    </tr>
+    <tr>
+      <th>f8</th>
+      <td>0.18</td>
+      <td>41.42</td>
+      <td>0.04</td>
+      <td>27.73</td>
+      <td>0.24</td>
+      <td>8.03</td>
+    </tr>
+    <tr>
+      <th>af4</th>
+      <td>0.2</td>
+      <td>67.4</td>
+      <td>0.11</td>
+      <td>43.28</td>
+      <td>-0.19</td>
+      <td>9.06</td>
+    </tr>
+  </tbody>
+</table></div></div>
+<p>The mean and median are both near zero. The key observation is the <strong>gap between std and scaled MAD</strong>: for O1 the std is 78 µV but the MAD-based spread is only 42 µV, and the excess kurtosis reaches 15. A few huge artifacts inflate the std; the MAD describes the bulk of the data. For artifact-contaminated physiological signals, <strong>report robust statistics</strong>.</p>
+
+<h2 id="is-the-signal-gaussian">Is the signal Gaussian?<a class="headerlink" href="#is-the-signal-gaussian" title="Permalink to this heading">#</a></h2>
+<p>Many tests assume normality. We compare the histogram of AF3 with a fitted normal curve (log scale on the vertical axis shows the tails) and draw a Q–Q plot: if the data were Gaussian, the points would follow the red line.</p>
+<div class="cell"><div class="cell_input"><div class="highlight"><pre><span class="n">x</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">CH</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;af3&quot;</span><span class="p">)]</span>
+<span class="n">mu</span><span class="p">,</span> <span class="n">sd</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">x</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mf">3.6</span><span class="p">))</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#9bb8e0&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">)</span>
+<span class="n">g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">400</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">400</span><span class="p">);</span> <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sd</span><span class="p">),</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;normal fit&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">);</span> <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mf">1e-7</span><span class="p">,</span> <span class="mf">1e-1</span><span class="p">);</span> <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;AF3 (µV)&quot;</span><span class="p">);</span> <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;density (log)&quot;</span><span class="p">);</span> <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">stats</span><span class="o">.</span><span class="n">probplot</span><span class="p">(</span><span class="n">x</span><span class="p">[::</span><span class="mi">5</span><span class="p">],</span> <span class="n">dist</span><span class="o">=</span><span class="s2">&quot;norm&quot;</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span> <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Q–Q plot, AF3&quot;</span><span class="p">);</span> <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get_lines</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">();</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div><button class="copybtn" title="Copy code" aria-label="Copy code">Copy</button></div><figure class="cell_output fig_out"><img src="assets/img/05-statistics_1.png" alt="Figure output" loading="lazy"></figure></div>
+<p>The histogram has a sharper peak and much heavier tails than the normal curve, and the Q–Q plot bends away from the line at both ends: the distribution is <strong>leptokurtic</strong>. The EEG itself is close to Gaussian over short windows, but a mixture of calm periods and artifact bursts (different variances) produces heavy tails overall. This is why we will work with epochs and with log-transformed amplitudes.</p>
+
+<h2 id="samples-are-not-independent">Samples are not independent<a class="headerlink" href="#samples-are-not-independent" title="Permalink to this heading">#</a></h2>
+<p>The standard error of a mean, \(s/\sqrt{N}\), assumes independent observations. EEG samples are strongly <strong>autocorrelated</strong>: neighbouring samples are similar. The autocorrelation at lag \(k\) is \(\rho_k=\mathrm{Cov}(x_n,x_{n+k})/\mathrm{Var}(x_n)\), and the number of <em>effectively independent</em> samples is roughly
+\[
+N_{\mathrm{eff}}\;\approx\;\frac{N}{1+2\sum_{k\ge 1}\rho_k}.
+\]
+</p>
+<div class="cell"><div class="cell_input"><div class="highlight"><pre><span class="k">def</span><span class="w"> </span><span class="nf">acf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">nlags</span><span class="p">):</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">x</span><span class="o">.</span><span class="n">mean</span><span class="p">();</span> <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">n</span><span class="p">)</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">irfft</span><span class="p">(</span><span class="n">f</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">f</span><span class="p">))[:</span><span class="n">nlags</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">r</span> <span class="o">/</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="n">rho</span> <span class="o">=</span> <span class="n">acf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">FS</span><span class="p">)</span>
+<span class="n">k_cut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">rho</span> <span class="o">&lt;</span> <span class="mf">0.05</span><span class="p">)</span>                 <span class="c1"># first lag where correlation has died out</span>
+<span class="n">tau</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">rho</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">k_cut</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">);</span> <span class="n">N_eff</span> <span class="o">=</span> <span class="n">N</span> <span class="o">/</span> <span class="n">tau</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;correlation dies out after </span><span class="si">{</span><span class="n">k_cut</span><span class="si">}</span><span class="s2"> lags = </span><span class="si">{</span><span class="n">k_cut</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">FS</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1e3</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> ms&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;N = </span><span class="si">{</span><span class="n">N</span><span class="si">}</span><span class="s2">,  N_eff ≈ </span><span class="si">{</span><span class="n">N_eff</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">  (one independent sample every </span><span class="si">{</span><span class="n">tau</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> samples)&quot;</span><span class="p">)</span>
+
+<span class="c1"># 95% confidence interval of the mean: naive vs corrected vs block bootstrap (10-s blocks)</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">se_naive</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">ddof</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+<span class="n">se_eff</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">ddof</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">N_eff</span><span class="p">)</span>
+<span class="n">blocks</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:</span><span class="n">N</span> <span class="o">//</span> <span class="mi">1280</span> <span class="o">*</span> <span class="mi">1280</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1280</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">boot</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">blocks</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">2000</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">blocks</span><span class="p">)))</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;mean = </span><span class="si">{</span><span class="n">m</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> µV&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;naive          95% CI half-width: ±</span><span class="si">{</span><span class="mf">1.96</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">se_naive</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> µV&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;N_eff-corrected 95% CI half-width: ±</span><span class="si">{</span><span class="mf">1.96</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">se_eff</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> µV&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;block bootstrap 95% CI half-width: ±</span><span class="si">{</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">boot</span><span class="p">,</span><span class="w"> </span><span class="mf">97.5</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">boot</span><span class="p">,</span><span class="w"> </span><span class="mf">2.5</span><span class="p">))</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> µV&quot;</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mf">2.8</span><span class="p">));</span> <span class="n">ax</span><span class="o">.</span><span class="n">stem</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">FS</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">FS</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">markerfmt</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">basefmt</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;lag (s)&quot;</span><span class="p">);</span> <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;ρ(lag)&quot;</span><span class="p">);</span> <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Autocorrelation of AF3&quot;</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div><button class="copybtn" title="Copy code" aria-label="Copy code">Copy</button></div><div class="cell_output"><pre>correlation dies out after 51 lags = 398 ms
+N = 199705,  N_eff ≈ 3914  (one independent sample every 51.0 samples)
+mean = 0.095 µV
+naive          95% CI half-width: ±0.237 µV
+N_eff-corrected 95% CI half-width: ±1.694 µV
+block bootstrap 95% CI half-width: ±0.376 µV</pre></div><figure class="cell_output fig_out"><img src="assets/img/05-statistics_2.png" alt="Figure output" loading="lazy"></figure></div>
+<p>The correlation fades within about 398 ms, but that still means only one sample in about 51 carries new information: 199,705 samples are worth about <strong>3,914</strong> independent ones. The naive 95% interval is ±0.24 µV; the N<sub>eff</sub>-corrected one is ±1.69 µV and the block bootstrap gives ±0.38 µV. The two corrected estimates disagree with each other, because they measure dependence differently: the autocorrelation sum is dominated by slow drifts and is noisy, while 10-second blocks only capture dependence shorter than 10 s. What they agree on is the main message: <strong>the naive interval is far too narrow</strong>, by a factor between 1.5 and 7 depending on the method. Ignoring autocorrelation makes everything look more significant than it is.</p>
+
+<h2 id="central-limit-theorem-on-a-signal">Central limit theorem on a signal<a class="headerlink" href="#central-limit-theorem-on-a-signal" title="Permalink to this heading">#</a></h2>
+<p>If we average \(n\) samples, the standardised mean should approach a Gaussian as \(n\) grows. We test this with non-overlapping blocks of 1, 16, 128 and 1280 samples:</p>
+<div class="cell"><div class="cell_input"><div class="highlight"><pre><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mf">2.8</span><span class="p">),</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">kur</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">1280</span><span class="p">)):</span>
+    <span class="n">mb</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:</span><span class="n">N</span> <span class="o">//</span> <span class="n">n</span> <span class="o">*</span> <span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="n">mb</span> <span class="o">-</span> <span class="n">mb</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">/</span> <span class="n">mb</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+    <span class="n">a</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#9bb8e0&quot;</span><span class="p">)</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">200</span><span class="p">);</span> <span class="n">a</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">g</span><span class="p">),</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">kur</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">kurtosis</span><span class="p">(</span><span class="n">z</span><span class="p">))</span>
+    <span class="n">a</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;n = </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="se">\n</span><span class="s2">excess kurtosis </span><span class="si">{</span><span class="n">kur</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">);</span> <span class="n">a</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;standardised mean&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">();</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div><button class="copybtn" title="Copy code" aria-label="Copy code">Copy</button></div><figure class="cell_output fig_out"><img src="assets/img/05-statistics_3.png" alt="Figure output" loading="lazy"></figure></div>
+<p>Surprise: the excess kurtosis does <strong>not</strong> go to 0. It is 9.7 for single samples, 11.1, 6.6 and 9.4 for larger blocks: averaging does not make these means Gaussian. The central limit theorem needs (nearly) independent observations with the same distribution and a large number of them. Here the variance changes over time (calm periods and artifact bursts) and the data are autocorrelated, so the number of effectively independent blocks is small and the heavy tails survive. <strong>A theorem is only as good as its assumptions.</strong> This is why we use log-transformed epoch features and a rank-based test as a safety check in the next section.</p>
+
+<h2 id="dependence-between-channels">Dependence between channels<a class="headerlink" href="#dependence-between-channels" title="Permalink to this heading">#</a></h2>
+<p>The Pearson correlation between channels \(i\) and \(j\) is \(r_{ij}=\mathrm{Cov}(x_i,x_j)/(s_is_j)\). Because of volume conduction, nearby electrodes should be more correlated. We plot the matrix and the correlation against the schematic distance between electrodes (from <code>POS</code>).</p>
+<div class="cell"><div class="cell_input"><div class="highlight"><pre><span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="n">iu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">triu_indices</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">CH</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">POS</span><span class="p">[</span><span class="n">CH</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">POS</span><span class="p">[</span><span class="n">CH</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="mi">0</span><span class="p">],</span> <span class="n">POS</span><span class="p">[</span><span class="n">CH</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">POS</span><span class="p">[</span><span class="n">CH</span><span class="p">[</span><span class="n">j</span><span class="p">]][</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">iu</span><span class="p">)])</span>
+<span class="n">rho_s</span><span class="p">,</span> <span class="n">p_s</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">spearmanr</span><span class="p">(</span><span class="n">dist</span><span class="p">,</span> <span class="n">R</span><span class="p">[</span><span class="n">iu</span><span class="p">])</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">10.5</span><span class="p">,</span> <span class="mf">4.2</span><span class="p">),</span> <span class="n">gridspec_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;width_ratios&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]})</span>
+<span class="n">im</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;RdBu_r&quot;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">);</span> <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">14</span><span class="p">));</span> <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">CH</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">14</span><span class="p">));</span> <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">CH</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fraction</span><span class="o">=</span><span class="mf">.046</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Pearson correlation&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">dist</span><span class="p">,</span> <span class="n">R</span><span class="p">[</span><span class="n">iu</span><span class="p">],</span> <span class="n">s</span><span class="o">=</span><span class="mi">14</span><span class="p">);</span> <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;distance between electrodes (head radius = 1)&quot;</span><span class="p">);</span> <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Spearman ρ = </span><span class="si">{</span><span class="n">rho_s</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">();</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div><button class="copybtn" title="Copy code" aria-label="Copy code">Copy</button></div><figure class="cell_output fig_out"><img src="assets/img/05-statistics_4.png" alt="Figure output" loading="lazy"></figure></div>
+<p>Correlations are weak to moderate (median 0.21, from -0.32 to 0.74; the left-right pairs AF3–AF4 and O1–O2 reach 0.45 and 0.42); the Spearman coefficient between distance and \(r\) is -0.47 (p = 3.3e-06): <strong>the farther apart two electrodes are, the less correlated</strong>. So the 14 channels are not 14 independent measurements, which matters for multiple testing and for PCA.</p>
+
+<h2 id="hypothesis-tests-on-epoch-features">Hypothesis tests on epoch features<a class="headerlink" href="#hypothesis-tests-on-epoch-features" title="Permalink to this heading">#</a></h2>
+<p>Raw samples are a poor unit for testing. We summarise each 1-second epoch by the <strong>logarithm of its standard deviation</strong> (a log transform makes amplitude features much closer to normal) and test differences between conditions at the epoch level.</p>
+<div class="cell"><div class="cell_input"><div class="highlight"><pre><span class="n">ls</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">E1</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>          <span class="c1"># (channel, epoch): log10 of the epoch standard deviation</span>
+
+<span class="c1"># (a) Left vs right homologous pairs: PAIRED tests, 7 families -&gt; Holm correction</span>
+<span class="n">pairs</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;af3&quot;</span><span class="p">,</span> <span class="s2">&quot;af4&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;f3&quot;</span><span class="p">,</span> <span class="s2">&quot;f4&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;f7&quot;</span><span class="p">,</span> <span class="s2">&quot;f8&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;fc5&quot;</span><span class="p">,</span> <span class="s2">&quot;fc6&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;t7&quot;</span><span class="p">,</span> <span class="s2">&quot;t8&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;p7&quot;</span><span class="p">,</span> <span class="s2">&quot;p8&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;o1&quot;</span><span class="p">,</span> <span class="s2">&quot;o2&quot;</span><span class="p">)]</span>
+<span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">L_</span><span class="p">,</span> <span class="n">R_</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">ls</span><span class="p">[</span><span class="n">CH</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">L_</span><span class="p">)]</span> <span class="o">-</span> <span class="n">ls</span><span class="p">[</span><span class="n">CH</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">R_</span><span class="p">)]</span>
+    <span class="n">tt</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">ttest_1samp</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">L_</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> − </span><span class="si">{</span><span class="n">R_</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">d</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">/</span> <span class="n">d</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">ddof</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">tt</span><span class="o">.</span><span class="n">statistic</span><span class="p">,</span> <span class="n">tt</span><span class="o">.</span><span class="n">pvalue</span><span class="p">,</span>
+                 <span class="n">stats</span><span class="o">.</span><span class="n">wilcoxon</span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="o">.</span><span class="n">pvalue</span><span class="p">])</span>
+<span class="n">res</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pair&quot;</span><span class="p">,</span> <span class="s2">&quot;mean diff (log10 µV)&quot;</span><span class="p">,</span> <span class="s2">&quot;Cohen d_z&quot;</span><span class="p">,</span> <span class="s2">&quot;t&quot;</span><span class="p">,</span> <span class="s2">&quot;p (t-test)&quot;</span><span class="p">,</span> <span class="s2">&quot;p (Wilcoxon)&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;pair&quot;</span><span class="p">)</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;p (t-test)&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">();</span> <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">p</span><span class="p">);</span> <span class="n">m</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">);</span> <span class="n">adj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">m</span><span class="p">);</span> <span class="n">run</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">rank</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">order</span><span class="p">):</span>                          <span class="c1"># Holm step-down adjustment</span>
+    <span class="n">run</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="p">(</span><span class="n">m</span> <span class="o">-</span> <span class="n">rank</span><span class="p">)</span> <span class="o">*</span> <span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span> <span class="n">adj</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">run</span><span class="p">)</span>
+<span class="n">res</span><span class="p">[</span><span class="s2">&quot;p Holm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">adj</span>
+<span class="n">res</span>
+</pre></div><button class="copybtn" title="Copy code" aria-label="Copy code">Copy</button></div><div class="cell_output df_out"><table class="dataframe dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>mean diff (log10 µV)</th>
+      <th>Cohen d_z</th>
+      <th>t</th>
+      <th>p (t-test)</th>
+      <th>p (Wilcoxon)</th>
+      <th>p Holm</th>
+    </tr>
+    <tr>
+      <th>pair</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>AF3 − AF4</th>
+      <td>-0.1259</td>
+      <td>-0.6434</td>
+      <td>-25.41</td>
+      <td>1.769e-119</td>
+      <td>5.656e-115</td>
+      <td>8.845e-119</td>
+    </tr>
+    <tr>
+      <th>F3 − F4</th>
+      <td>-0.1378</td>
+      <td>-0.9961</td>
+      <td>-39.34</td>
+      <td>1.022e-235</td>
+      <td>1.504e-194</td>
+      <td>7.153e-235</td>
+    </tr>
+    <tr>
+      <th>F7 − F8</th>
+      <td>0.04157</td>
+      <td>0.1904</td>
+      <td>7.519</td>
+      <td>9.236e-14</td>
+      <td>6.557e-06</td>
+      <td>2.771e-13</td>
+    </tr>
+    <tr>
+      <th>FC5 − FC6</th>
+      <td>-0.1359</td>
+      <td>-0.7862</td>
+      <td>-31.05</td>
+      <td>3.165e-165</td>
+      <td>8.292e-161</td>
+      <td>1.899e-164</td>
+    </tr>
+    <tr>
+      <th>T7 − T8</th>
+      <td>-0.09438</td>
+      <td>-0.5255</td>
+      <td>-20.76</td>
+      <td>1.067e-84</td>
+      <td>4.225e-89</td>
+      <td>4.269e-84</td>
+    </tr>
+    <tr>
+      <th>P7 − P8</th>
+      <td>-0.03973</td>
+      <td>-0.09539</td>
+      <td>-3.768</td>
+      <td>0.000171</td>
+      <td>0.004955</td>
+      <td>0.000171</td>
+    </tr>
+    <tr>
+      <th>O1 − O2</th>
+      <td>-0.02619</td>
+      <td>-0.13</td>
+      <td>-5.135</td>
+      <td>3.172e-07</td>
+      <td>1.91e-08</td>
+      <td>6.345e-07</td>
+    </tr>
+  </tbody>
+</table></div></div>
+<p>Each row is a paired \(t\)-test (\(H_0\): the mean log-amplitude difference between left and right is 0) with <strong>Cohen's \(d_z\)</strong> as effect size, a non-parametric Wilcoxon check and a <strong>Holm correction</strong> for the 7 simultaneous tests. 7 of 7 pairs remain significant after correction. Look at the effect sizes, not only at the p-values: F3−F4 has \(|d_z|\approx\)1.0 (large) while P7−P8 has \(|d_z|\approx\)0.10 (negligible), yet both are "significant" because 1560 epochs give enormous power. A p-value answers <em>is there any difference?</em>; the effect size answers <em>does it matter?</em>. (Printed p-values of 0 are just underflow of very small numbers.)</p>
+<div class="cell"><div class="cell_input"><div class="highlight"><pre><span class="c1"># (b) Does the amplitude of P7 differ when its contact grade is 0 vs &gt;= 2?  Two INDEPENDENT groups -&gt; Welch t-test</span>
+<span class="n">cq_ep</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;cq.p7&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()[:</span><span class="n">n_ep</span> <span class="o">*</span> <span class="n">FS</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n_ep</span><span class="p">,</span> <span class="n">FS</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">ls</span><span class="p">[</span><span class="n">CH</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;p7&quot;</span><span class="p">)]</span>
+<span class="n">bad_c</span><span class="p">,</span> <span class="n">good_c</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">cq_ep</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">cq_ep</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">]</span>
+<span class="n">tw</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">ttest_ind</span><span class="p">(</span><span class="n">bad_c</span><span class="p">,</span> <span class="n">good_c</span><span class="p">,</span> <span class="n">equal_var</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">mw</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">mannwhitneyu</span><span class="p">(</span><span class="n">bad_c</span><span class="p">,</span> <span class="n">good_c</span><span class="p">)</span>
+<span class="n">diff</span> <span class="o">=</span> <span class="n">bad_c</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">-</span> <span class="n">good_c</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">se</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">bad_c</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">ddof</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">bad_c</span><span class="p">)</span> <span class="o">+</span> <span class="n">good_c</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">ddof</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">good_c</span><span class="p">))</span>
+<span class="n">sp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(((</span><span class="nb">len</span><span class="p">(</span><span class="n">bad_c</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">bad_c</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">ddof</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">good_c</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">good_c</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">ddof</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bad_c</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">good_c</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;epochs: cq=0 -&gt; </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">bad_c</span><span class="p">)</span><span class="si">}</span><span class="s2">,  cq&gt;=2 -&gt; </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">good_c</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;mean log10 std: </span><span class="si">{</span><span class="n">bad_c</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> vs </span><span class="si">{</span><span class="n">good_c</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">  (ratio of amplitudes x</span><span class="si">{</span><span class="mi">10</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">diff</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Welch t = </span><span class="si">{</span><span class="n">tw</span><span class="o">.</span><span class="n">statistic</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, p = </span><span class="si">{</span><span class="n">tw</span><span class="o">.</span><span class="n">pvalue</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">;  Mann-Whitney p = </span><span class="si">{</span><span class="n">mw</span><span class="o">.</span><span class="n">pvalue</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;95% CI of the difference: [</span><span class="si">{</span><span class="n">diff</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1.96</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">se</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">diff</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1.96</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">se</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">],  Cohen d = </span><span class="si">{</span><span class="n">diff</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">sp</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">r1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">y</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">:])[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">];</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;lag-1 autocorrelation of the epoch feature: </span><span class="si">{</span><span class="n">r1</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div><button class="copybtn" title="Copy code" aria-label="Copy code">Copy</button></div><div class="cell_output"><pre>epochs: cq=0 -&gt; 769,  cq&gt;=2 -&gt; 380
+mean log10 std: 1.564 vs 1.621  (ratio of amplitudes x0.88)
+Welch t = -2.25, p = 2.47e-02;  Mann-Whitney p = 4.34e-01
+95% CI of the difference: [-0.106, -0.007],  Cohen d = -0.13
+lag-1 autocorrelation of the epoch feature: 0.67</pre></div></div>
+<p>Epochs with contact grade 0 have a mean log-amplitude only 0.06 lower than epochs with grade 2 or more (amplitude ratio ×0.88), a <strong>small effect</strong> (Cohen's \(d=-0.13\)). The two tests <em>disagree</em>: Welch \(p=0.025\) but Mann-Whitney \(p=0.43\). On top of that, consecutive epochs are correlated (lag-1 autocorrelation 0.67), so we have fewer independent observations than the 1560 epochs and the Welch p-value is optimistic. Honest conclusion: <strong>there is no convincing evidence that the P7 grade changes its amplitude</strong>. This is a useful negative result: the contact grade is a poor predictor of amplitude, which is exactly why Chapter 4 relied on amplitude thresholds rather than on <code>cq</code> alone. Reporting a weak or null result with the right caveats is part of good practice.</p>
+<div class="admonition key"><p class="admonition-title">Checklist before any test</p><div class="adm-body"><ol><li>What is the unit of observation (sample, epoch, subject)? Are the units independent?</li><li>Is the feature roughly normal (log transform, Q–Q plot)? Otherwise add a rank-based test.</li><li>Paired or independent groups?</li><li>How many tests? Correct for multiplicity (Bonferroni, Holm).</li><li>Report effect size and confidence interval, not only p.</li></ol></div></div><div class="quiz" data-correct="1" data-explain="Neighbouring samples are correlated, so each new sample adds less than one independent observation. N_eff = N/(1 + 2 Σ ρ_k) is much smaller than N."><p class="q">Self-check: A 26-minute EEG has 199,705 samples. Is the effective sample size for the mean about 199,705?</p><ul><li><button type='button'>Yes, every sample is a new observation</button></li><li><button type='button'>No, autocorrelation reduces it a lot</button></li><li><button type='button'>It is larger, because of oversampling</button></li><li><button type='button'>It equals the number of channels</button></li></ul><p class="fb" aria-live="polite"></p></div><div class="admonition exercise"><p class="admonition-title">Exercise: Left versus right in the occipital pair</p><div class="adm-body"><p>For O1 and O2, compute a 95% confidence interval for the mean difference of log-amplitude using the <em>t</em> distribution (<code>stats.t.interval</code>) and explain how the result relates to the \(t\)-test in the table.</p><details class="solution"><summary>Show solution</summary><div class="sol-body"><pre style="white-space:pre-wrap">d = ls[CH.index("o1")] - ls[CH.index("o2")]
+ci = stats.t.interval(0.95, len(d) - 1, loc=d.mean(), scale=stats.sem(d)); print(ci)</pre><p>The interval excludes 0 exactly when the two-sided t-test rejects \(H_0\) at the 5% level: they are two views of the same statistic.</p></div></details></div></div>
+
+    <div class="prevnext"><a class="prev" href="04-signal-quality.html"><small>‹ previous</small><b>Signal quality and artifacts</b></a><a class="next" href="06-sampling-fourier.html"><small>next ›</small><b>Sampling, aliasing, Fourier</b></a></div>
+  </article>
+  <div class="footer">Lab module: Biomedical Data Analysis · Year 2, Introduction to Biomedical Engineering · Oct 05, 2026<br>
+  Page layout inspired by the Jupyter Book reading experience. All figures and numbers on these pages were produced by the code shown, run on the provided Emotiv EPOC X recording.</div>
+</div>
+<aside class="toc-col"><div class="toc"><h5>Contents</h5><ul><li class="l2"><a href="#descriptive-statistics-of-the-14-channels">Descriptive statistics of the 14 channels</a></li><li class="l2"><a href="#is-the-signal-gaussian">Is the signal Gaussian?</a></li><li class="l2"><a href="#samples-are-not-independent">Samples are not independent</a></li><li class="l2"><a href="#central-limit-theorem-on-a-signal">Central limit theorem on a signal</a></li><li class="l2"><a href="#dependence-between-channels">Dependence between channels</a></li><li class="l2"><a href="#hypothesis-tests-on-epoch-features">Hypothesis tests on epoch features</a></li></ul></div></aside>
+</div>
+</div>
+<button class="hbtn totop" aria-label="Back to top"><svg viewBox="0 0 24 24"><path d="M12 19V5m0 0l-6 6m6-6l6 6"/></svg></button>
+<div class="modal" id="searchModal" role="dialog" aria-label="Search"><div class="search-box">
+<input id="searchInput" type="search" placeholder="Search the lab… (try: Welch, quality, aliasing)" autocomplete="off">
+<ul class="search-results" id="searchResults"></ul></div></div>
+</body>
+</html>

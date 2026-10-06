@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Summary, cheat sheet and references — Biomedical Data Analysis</title>
+<meta name="description" content="Biomedical data analysis lab with Python on Emotiv EPOC X EEG data.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='9' fill='%231f62b8'/%3E%3Cpath d='M5 22h6l3-9 5 17 4-13 3 5h9' fill='none' stroke='white' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/css/style.css">
+<script>
+(function(){try{var t=localStorage.getItem('bda-theme');if(!t&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)t='dark';document.documentElement.setAttribute('data-theme',t||'light');}catch(e){}})();
+window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};
+</script>
+<script defer src="assets/js/mathjax-tex-svg.js"></script>
+<script defer src="assets/js/search-data.js"></script>
+<script defer src="assets/js/main.js"></script>
+</head>
+<body>
+<a class="skip" href="#main-content">Skip to main content</a>
+<nav class="sidebar" aria-label="Main navigation"><a class="logo" href="index.html"><svg width="38" height="38" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#1f62b8"/><path d="M5 22h6l3-9 5 17 4-13 3 5h9" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>Biomedical Data Analysis</b><small>EEG signals with Python</small></span></a><div class="nav-group">Welcome</div><ul><li><a href="index.html">Prologue: the lab at a glance</a></li></ul><div class="nav-group">Know your signal</div><ul><li><a href="01-neurons-to-numbers.html"><span class="num">1</span>From neurons to numbers</a></li><li><a href="02-dataset.html"><span class="num">2</span>The dataset: every variable</a></li></ul><div class="nav-group">Load, inspect, clean</div><ul><li><a href="03-time-axis.html"><span class="num">3</span>Time axis and sampling rate</a></li><li><a href="04-signal-quality.html"><span class="num">4</span>Signal quality and artifacts</a></li></ul><div class="nav-group">Statistics on signals</div><ul><li><a href="05-statistics.html"><span class="num">5</span>Descriptive and inferential statistics</a></li></ul><div class="nav-group">Signal processing</div><ul><li><a href="06-sampling-fourier.html"><span class="num">6</span>Sampling, aliasing, Fourier</a></li><li><a href="07-filtering.html"><span class="num">7</span>Digital filtering</a></li><li><a href="08-rhythms.html"><span class="num">8</span>Rhythms and spectrograms</a></li></ul><div class="nav-group">Lab</div><ul><li><a href="09-lab-pipeline.html"><span class="num">9</span>Pipeline and mini-project</a></li></ul><div class="nav-group">References</div><ul><li><a href="10-summary.html" class="current"><span class="num">10</span>Summary and references</a></li></ul><div class="sb-foot">Lab module · 2 hours<br>Data: Emotiv EPOC X, 14-channel EEG<br>Python · NumPy · SciPy · pandas · Matplotlib</div></nav>
+<div class="scrim"></div>
+<div class="main">
+<div class="article-wrap">
+<div class="article-col">
+  <div class="header-bar">
+    <button class="hbtn" id="sbToggle" aria-label="Toggle navigation"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+    <span class="crumb">Biomedical Data Analysis / Summary, cheat sheet and references</span>
+    <span class="spacer"></span>
+    <button class="hbtn searchBtn" aria-label="Search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><span class="lbl">Search</span><kbd>Ctrl K</kbd></button>
+    <a class="hbtn" href="assets/lab_code.py" download title="Download all code of the lab as a Python script"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg><span class="lbl">.py</span></a>
+    <button class="hbtn" id="printBtn" title="Print or save as PDF" aria-label="Print"><svg viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4v-7h16v7h-2M7 14h10v7H7z"/></svg><span class="lbl">.pdf</span></button>
+    <button class="hbtn" id="fsBtn" title="Focus mode" aria-label="Focus mode"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+    <button class="hbtn" id="themeBtn" title="Light / dark" aria-label="Toggle dark mode"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+  </div>
+  <article id="main-content">
+    
+<h1 id="summary-cheat-sheet-and-references">Summary, cheat sheet and references<a class="headerlink" href="#summary-cheat-sheet-and-references" title="Permalink to this heading">#</a></h1>
+<p class="lead">You started from a 100 MB CSV and finished with a documented, statistically careful analysis of EEG rhythms. This page collects the take-home messages.</p>
+
+<h2 id="five-lessons-of-the-lab">Five lessons of the lab<a class="headerlink" href="#five-lessons-of-the-lab" title="Permalink to this heading">#</a></h2>
+<ol>
+<li><strong>Know the generator.</strong> Electrode, amplifier, filters and ADC decide what the numbers can contain (Point 1).</li>
+<li><strong>Check before you compute.</strong> Sampling rate, completeness, units, empty cells and sensor faults (Point 2 to 4).</li>
+<li><strong>Samples are not independent, and data are not Gaussian.</strong> Use robust statistics, effective sample sizes, log transforms and effect sizes (Point 5).</li>
+<li><strong>Frequency is the natural language of EEG.</strong> Window, average (Welch), integrate over bands, separate background from oscillation (Point 6 to 8).</li>
+<li><strong>Report limits honestly.</strong> Percentage of data kept, thresholds, null results and the absence of event markers (Point 9).</li>
+</ol>
+
+<h2 id="cheat-sheet-concept-meaning-and-code">Cheat sheet: concept, meaning and code<a class="headerlink" href="#cheat-sheet-concept-meaning-and-code" title="Permalink to this heading">#</a></h2>
+<div class="tbl-wrap"><table><thead><tr><th>Concept</th><th>One-line meaning</th><th>Python</th></tr></thead><tbody><tr><td>Sampling rate / Nyquist</td><td>\(f_s=1/T_s\); only \(f<f_s/2\) is unambiguous</td><td><code>1/np.median(np.diff(t))</code></td></tr><tr><td>Robust spread</td><td>Scaled median absolute deviation</td><td><code>stats.median_abs_deviation(x, scale='normal')</code></td></tr><tr><td>Normality check</td><td>Q–Q plot, skewness, kurtosis</td><td><code>stats.probplot</code>, <code>stats.skew</code>, <code>stats.kurtosis</code></td></tr><tr><td>Autocorrelation / N<sub>eff</sub></td><td>Dependence between samples shrinks the sample size</td><td>FFT-based <code>acf</code>, \(N/(1+2\sum\rho_k)\)</td></tr><tr><td>Paired / independent tests</td><td>Same units vs different groups</td><td><code>stats.ttest_1samp</code>, <code>stats.ttest_ind(equal_var=False)</code></td></tr><tr><td>Multiple comparisons</td><td>Holm step-down adjustment</td><td>manual loop (Chapter 5)</td></tr><tr><td>FFT and windows</td><td>Frequency content of a segment; Hann reduces leakage</td><td><code>np.fft.rfft(x*np.hanning(N))</code></td></tr><tr><td>PSD (Welch)</td><td>Average periodograms; resolution \(f_s/N_{seg}\)</td><td><code>signal.welch(x, fs, nperseg)</code></td></tr><tr><td>Filter design</td><td>Butterworth SOS, zero-phase</td><td><code>signal.butter(..., output='sos')</code>, <code>signal.sosfiltfilt</code></td></tr><tr><td>Band power</td><td>Integral of PSD over a band</td><td><code>np.trapezoid(P[m], f[m])</code></td></tr><tr><td>Spectrogram</td><td>Spectra in a sliding window</td><td><code>signal.spectrogram</code></td></tr><tr><td>Envelope / phase</td><td>Analytic signal</td><td><code>np.abs(signal.hilbert(x))</code></td></tr><tr><td>PCA</td><td>Orthogonal directions of maximal variance</td><td><code>np.linalg.svd(Z, full_matrices=False)</code></td></tr></tbody></table></div>
+<h2 id="common-pitfalls">Common pitfalls<a class="headerlink" href="#common-pitfalls" title="Permalink to this heading">#</a></h2>
+<div class="tbl-wrap"><table><thead><tr><th>Pitfall</th><th>Why it hurts</th><th>Remedy</th></tr></thead><tbody><tr><td>Computing statistics on the whole file</td><td>Artifacts dominate mean, std and spectra</td><td>Epoch, reject, use robust statistics</td></tr><tr><td>Trusting contact quality only</td><td>Good contact does not mean clean signal</td><td>Combine <code>cq</code>, <code>sq</code> and amplitude rules</td></tr><tr><td>Treating samples as independent</td><td>Confidence intervals too narrow, p-values too small</td><td>N<sub>eff</sub>, block bootstrap, report effect size</td></tr><tr><td>No window before the FFT</td><td>Spectral leakage</td><td>Hann window; Welch averaging</td></tr><tr><td>Causal filtering offline</td><td>Phase distortion and delays</td><td><code>sosfiltfilt</code></td></tr><tr><td>Fixed band edges for everyone</td><td>Individual peak frequencies differ</td><td>Locate the peak, individualise the band</td></tr><tr><td>Interpreting relative power alone</td><td>Shares sum to 100%</td><td>Look at absolute power as well</td></tr><tr><td>Over-interpreting without markers</td><td>No condition labels in the file</td><td>State hypotheses, avoid causal stories</td></tr></tbody></table></div>
+<h2 id="references">References<a class="headerlink" href="#references" title="Permalink to this heading">#</a></h2>
+<ol>
+<li>Oppenheim, A. V., &amp; Schafer, R. W. <em>Discrete-Time Signal Processing</em>. Pearson. (Sampling, DFT, filter design.)</li>
+<li>Welch, P. D. (1967). The use of fast Fourier transform for the estimation of power spectra. <em>IEEE Transactions on Audio and Electroacoustics</em>, 15(2), 70–73.</li>
+<li>Harris, F. J. (1978). On the use of windows for harmonic analysis with the discrete Fourier transform. <em>Proceedings of the IEEE</em>, 66(1), 51–83.</li>
+<li>Cohen, M. X. (2014). <em>Analyzing Neural Time Series Data</em>. MIT Press.</li>
+<li>Buzsáki, G. (2006). <em>Rhythms of the Brain</em>. Oxford University Press.</li>
+<li>Niedermeyer, E., &amp; Lopes da Silva, F. <em>Electroencephalography: Basic Principles, Clinical Applications, and Related Fields</em>. Lippincott Williams &amp; Wilkins.</li>
+<li>Virtanen, P., et al. (2020). SciPy 1.0: fundamental algorithms for scientific computing in Python. <em>Nature Methods</em>, 17, 261–272.</li>
+<li>Harris, C. R., et al. (2020). Array programming with NumPy. <em>Nature</em>, 585, 357–362.</li>
+<li>McKinney, W. (2010). Data structures for statistical computing in Python. <em>Proceedings of the 9th Python in Science Conference</em>.</li>
+<li>Hunter, J. D. (2007). Matplotlib: a 2D graphics environment. <em>Computing in Science &amp; Engineering</em>, 9(3), 90–95.</li>
+<li>Emotiv. EPOC X technical specifications and Cortex API documentation (check the current version for the exact definitions of the <code>cq</code> and <code>sq</code> metrics).</li>
+</ol>
+<div class="admonition note"><p class="admonition-title">A word of caution</p><div class="adm-body"><p>The definitions of the Emotiv quality metrics given in this lab combine the manufacturer's documentation with observations made on this very file (for example, that <code>sq.*.rms</code> matches a trailing 2-second RMS). When in doubt, trust the data and the current vendor documentation over this page.</p></div></div>
+
+    <div class="prevnext"><a class="prev" href="09-lab-pipeline.html"><small>‹ previous</small><b>Pipeline and mini-project</b></a></div>
+  </article>
+  <div class="footer">Lab module: Biomedical Data Analysis · Year 2, 
+    Introduction to Biomedical Engineering · Oct 07, 2026<br>
+    By: Cyrille YetuYetu Kesiku | Cordonator : Prof Begonya Garcia-Zapirain
+    <br>
+    
+  <br>
+<a href="https://evida.deusto.es/" download>Copy right © 2026 Vida research group| University of Deusto</a>
+</div>
+</div>
+<aside class="toc-col"><div class="toc"><h5>Contents</h5><ul><li class="l2"><a href="#five-lessons-of-the-lab">Five lessons of the lab</a></li><li class="l2"><a href="#cheat-sheet-concept-meaning-and-code">Cheat sheet: concept, meaning and code</a></li><li class="l2"><a href="#common-pitfalls">Common pitfalls</a></li><li class="l2"><a href="#references">References</a></li></ul></div></aside>
+</div>
+</div>
+<button class="hbtn totop" aria-label="Back to top"><svg viewBox="0 0 24 24"><path d="M12 19V5m0 0l-6 6m6-6l6 6"/></svg></button>
+<div class="modal" id="searchModal" role="dialog" aria-label="Search"><div class="search-box">
+<input id="searchInput" type="search" placeholder="Search the lab… (try: Welch, quality, aliasing)" autocomplete="off">
+<ul class="search-results" id="searchResults"></ul></div></div>
+</body>
+</html>

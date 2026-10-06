@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Biomedical Data Analysis with Python: EEG lab — Biomedical Data Analysis</title>
+<meta name="description" content="Biomedical data analysis lab with Python on Emotiv EPOC X EEG data.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='9' fill='%231f62b8'/%3E%3Cpath d='M5 22h6l3-9 5 17 4-13 3 5h9' fill='none' stroke='white' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/css/style.css">
+<script>
+(function(){try{var t=localStorage.getItem('bda-theme');if(!t&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)t='dark';document.documentElement.setAttribute('data-theme',t||'light');}catch(e){}})();
+window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};
+</script>
+<script defer src="assets/js/mathjax-tex-svg.js"></script>
+<script defer src="assets/js/search-data.js"></script>
+<script defer src="assets/js/main.js"></script>
+</head>
+<body>
+<a class="skip" href="#main-content">Skip to main content</a>
+<nav class="sidebar" aria-label="Main navigation"><a class="logo" href="index.html"><svg width="38" height="38" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#1f62b8"/><path d="M5 22h6l3-9 5 17 4-13 3 5h9" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>Biomedical Data Analysis</b><small>EEG signals with Python</small></span></a><div class="nav-group">Welcome</div><ul><li><a href="index.html" class="current">Prologue: the lab at a glance</a></li></ul><div class="nav-group">Know your signal</div><ul><li><a href="01-neurons-to-numbers.html"><span class="num">1</span>From neurons to numbers</a></li><li><a href="02-dataset.html"><span class="num">2</span>The dataset: every variable</a></li></ul><div class="nav-group">Load, inspect, clean</div><ul><li><a href="03-time-axis.html"><span class="num">3</span>Time axis and sampling rate</a></li><li><a href="04-signal-quality.html"><span class="num">4</span>Signal quality and artifacts</a></li></ul><div class="nav-group">Statistics on signals</div><ul><li><a href="05-statistics.html"><span class="num">5</span>Descriptive and inferential statistics</a></li></ul><div class="nav-group">Signal processing</div><ul><li><a href="06-sampling-fourier.html"><span class="num">6</span>Sampling, aliasing, Fourier</a></li><li><a href="07-filtering.html"><span class="num">7</span>Digital filtering</a></li><li><a href="08-rhythms.html"><span class="num">8</span>Rhythms and spectrograms</a></li></ul><div class="nav-group">Lab</div><ul><li><a href="09-lab-pipeline.html"><span class="num">9</span>Pipeline and mini-project</a></li></ul><div class="nav-group">References</div><ul><li><a href="10-summary.html"><span class="num">10</span>Summary and references</a></li></ul><div class="sb-foot">Lab module · 2 hours<br>Data: Emotiv EPOC X, 14-channel EEG<br>Python · NumPy · SciPy · pandas · Matplotlib</div></nav>
+<div class="scrim"></div>
+<div class="main">
+<div class="article-wrap">
+<div class="article-col">
+  <div class="header-bar">
+    <button class="hbtn" id="sbToggle" aria-label="Toggle navigation"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+    <span class="crumb">Biomedical Data Analysis / Biomedical Data Analysis with Python: EEG lab</span>
+    <span class="spacer"></span>
+    <button class="hbtn searchBtn" aria-label="Search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><span class="lbl">Search</span><kbd>Ctrl K</kbd></button>
+    <a class="hbtn" href="assets/lab_code.py" download title="Download all code of the lab as a Python script"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg><span class="lbl">.py</span></a>
+    <button class="hbtn" id="printBtn" title="Print or save as PDF" aria-label="Print"><svg viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4v-7h16v7h-2M7 14h10v7H7z"/></svg><span class="lbl">.pdf</span></button>
+    <button class="hbtn" id="fsBtn" title="Focus mode" aria-label="Focus mode"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+    <button class="hbtn" id="themeBtn" title="Light / dark" aria-label="Toggle dark mode"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+  </div>
+  <article id="main-content">
+    
+<h1 id="biomedical-data-analysis-with-python">Biomedical Data Analysis with Python<a class="headerlink" href="#biomedical-data-analysis-with-python" title="Permalink to this heading">#</a></h1>
+<p class="meta-line">Lab module · 2 hours · Year 2, October 2026, Introduction to Biomedical Engineering</p>
+<p class="meta-line">University of Deusto</p>
+<p class="meta-line">By: Cyrille YetuYetu Kesiku | Cordonator : Prof Begonya Garcia-Zapirain</p>
+<hr>
+<p class="lead">In this lab you analyse a real 26-minute, 14-channel EEG recording acquired with an <strong>Emotiv EPOC X</strong> headset. You will move from the physics of the signal to a complete analysis in Python: data dictionary, time axis, quality control, descriptive and inferential statistics, Fourier analysis, filtering, band power and a mini-project. Every figure and number in these pages is produced by the code shown.</p>
+<div class="admonition objectives"><p class="admonition-title">What you will be able to do</p><div class="adm-body">
+<ul>
+<li>Explain what an EEG measures and describe every one of the 76 variables of the CSV file.</li>
+<li>Check the sampling rate, completeness and quality of a biomedical recording.</li>
+<li>Apply second-year statistics to signals, and know when their assumptions break.</li>
+<li>Compute and interpret spectra, filters, band power, spectrograms and a PCA.</li>
+<li>Write a short, honest analysis report with sample sizes, effect sizes and limitations.</li>
+</ul></div></div>
+<h2 id="the-recording-at-a-glance">The recording at a glance<a class="headerlink" href="#the-recording-at-a-glance" title="Permalink to this heading">#</a></h2>
+<p>File <code>SE_EPOCX_dataset.csv</code>: 199,705 rows × 76 columns, 26.0 minutes at 128 Hz, 14 EEG channels (AF3, F7, F3, FC5, T7, P7, O1, O2, P8, T8, FC6, F4, F8, AF4), plus contact quality, signal quality and a motion unit. Recorded on 4 March 2024. No event markers: the file does not tell us what the subject was doing.</p>
+
+<h2 id="plan-of-the-two-hours">Plan of the two hours<a class="headerlink" href="#plan-of-the-two-hours" title="Permalink to this heading">#</a></h2>
+<ul class="timeline">
+<li><b>0:00 · Prologue and setup</b> (5 min). Environment, file, conventions.</li>
+<li><b>0:05 · 1. Know your signal</b> (30 min). <a href="01-neurons-to-numbers.html">From neurons to numbers</a>, then <a href="02-dataset.html">the 76 variables</a>.</li>
+<li><b>0:35 · 2. Load, inspect, clean</b> (20 min). <a href="03-time-axis.html">Time axis</a> and <a href="04-signal-quality.html">signal quality</a>.</li>
+<li><b>0:55 · 3. Statistics on signals</b> (20 min). <a href="05-statistics.html">Descriptive and inferential statistics</a>.</li>
+<li><b>1:15 · 4. Signal processing</b> (35 min). <a href="06-sampling-fourier.html">Sampling and Fourier</a>, <a href="07-filtering.html">filtering</a>, <a href="08-rhythms.html">rhythms</a>.</li>
+<li><b>1:50 · 5. Lab and wrap-up</b> (10 min in class, rest as homework). <a href="09-lab-pipeline.html">Pipeline and mini-project</a>, <a href="10-summary.html">summary</a>.</li>
+</ul>
+
+<div class="cards">
+<a class="card" href="01-neurons-to-numbers.html"><em>1. </em><b>From neurons to numbers</b><span>EEG physiology, acquisition chain, 10–20 system, rhythms, artifacts.</span></a>
+<a class="card" href="02-dataset.html"><em>2. </em><b>The dataset</b><span>Every variable, unit, rate and observed range.</span></a>
+<a class="card" href="03-time-axis.html"><em>3. </em><b>Time axis</b><span>Sampling rate, drift, lost samples, segments.</span></a>
+<a class="card" href="04-signal-quality.html"><em>4. </em><b>Signal quality</b><span>cq, sq, RMS, sensor faults, epoch rejection.</span></a>
+<a class="card" href="05-statistics.html"><em>5. </em><b>Statistics</b><span>Robust statistics, autocorrelation, tests, effect sizes.</span></a>
+<a class="card" href="06-sampling-fourier.html"><em>6. </em><b>Sampling and Fourier</b><span>Aliasing, DFT, windows, PSD, Welch, two interactive widgets.</span></a>
+<a class="card" href="07-filtering.html"><em>7. </em><b>Filtering</b><span>Butterworth, FIR, zero-phase, notch.</span></a>
+<a class="card" href="08-rhythms.html"><em>8. </em><b>Rhythms</b><span>Band power, 1/f fit, spectrogram, Hilbert, scalp maps.</span></a>
+<a class="card" href="09-lab-pipeline.html"><em>9. </em><b>Lab pipeline</b><span>Asymmetry, PCA, motion; mini-project questions.</span></a>
+</div>
+
+<h2 id="prerequisites-second-year-statistics">Prerequisites: second-year statistics<a class="headerlink" href="#prerequisites-second-year-statistics" title="Permalink to this heading">#</a></h2>
+<p>You need the following notions; each is revisited with the signal in the chapter shown.</p>
+<div class="tbl-wrap"><table><thead><tr><th>Notion</th><th>Where it is used</th></tr></thead><tbody><tr><td>Mean, variance, standard deviation, median</td><td>Chapters 2 and 3: summaries, robust MAD</td></tr><tr><td>Probability distributions, normality, Q–Q plot</td><td>Chapter 3</td></tr><tr><td>Law of large numbers and central limit theorem</td><td>Chapter 3: and why they can fail</td></tr><tr><td>Confidence intervals, standard error</td><td>Chapters 3 and 5</td></tr><tr><td>Hypothesis tests (paired, Welch), p-values, effect size</td><td>Chapters 3 and 5</td></tr><tr><td>Correlation and regression</td><td>Chapters 3, 4 and 5 (1/f fit)</td></tr><tr><td>Linear algebra (eigen/singular values)</td><td>Chapter 5: PCA</td></tr></tbody></table></div>
+<h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permalink to this heading">#</a></h2>
+<div class="admonition note"><p class="admonition-title">Environment</p><div class="adm-body"><p>Python 3.9 or later with <code>numpy</code> (2.0+ for <code>np.trapezoid</code>; on older versions use <code>np.trapz</code>), <code>pandas</code>, <code>scipy</code> and <code>matplotlib</code>.</p>
+<pre style="white-space:pre-wrap;margin:.5rem 0 0">pip install numpy pandas scipy matplotlib</pre>
+<p>All code of the lab is collected in <a href="assets/lab_code.py" download>lab_code.py</a> (also on the top bar, <code>.py</code>), with cells separated by <code># %%</code>: open it in VS Code or Spyder, or paste it in Jupyter. Put the CSV in the same folder.</p></div></div>
+<h2 id="how-to-read-these-pages">How to read these pages<a class="headerlink" href="#how-to-read-these-pages" title="Permalink to this heading">#</a></h2>
+<div class="admonition definition"><p class="admonition-title">Definition</p><div class="adm-body">A precise statement to remember.</div></div><div class="admonition key"><p class="admonition-title">Key idea</p><div class="adm-body">The central message of a section.</div></div><div class="admonition example"><p class="admonition-title">Example</p><div class="adm-body">A worked illustration.</div></div><div class="admonition warning"><p class="admonition-title">Watch out</p><div class="adm-body">A frequent mistake.</div></div><div class="admonition exercise"><p class="admonition-title">Exercise</p><div class="adm-body">Try it yourself, then open the solution.<details class='solution'><summary>Show solution</summary><div class='sol-body'>Solutions stay hidden until you click.</div></details></div></div>
+<p>Gray boxes are Python <strong>code</strong> (hover to copy); the blocks with a coloured left bar underneath are the <strong>outputs</strong> produced by running that code on the data, and figures can be enlarged by clicking. Press <kbd>Ctrl</kbd>+<kbd>K</kbd> to search, and use the moon icon for dark mode.</p>
+
+<div class="prevnext"><a class="next" href="01-neurons-to-numbers.html"><small>next ›</small><b>From neurons to numbers</b></a></div>
+  </article>
+  <div class="footer">Lab module: Biomedical Data Analysis · Year 2, 
+    Introduction to Biomedical Engineering · Oct 07, 2026<br>
+    By: Cyrille YetuYetu Kesiku | Cordonator : Prof Begonya Garcia-Zapirain
+    <br>
+    
+  <br>
+<a href="https://evida.deusto.es/" download>Copy right © 2026 Vida research group| University of Deusto</a>
+</div>
+</div>
+<aside class="toc-col"><div class="toc"><h5>Contents</h5><ul><li class="l2"><a href="#the-recording-at-a-glance">The recording at a glance</a></li><li class="l2"><a href="#plan-of-the-two-hours">Plan of the two hours</a></li><li class="l2"><a href="#prerequisites-second-year-statistics">Prerequisites: second-year statistics</a></li><li class="l2"><a href="#setup">Setup</a></li><li class="l2"><a href="#how-to-read-these-pages">How to read these pages</a></li></ul></div></aside>
+</div>
+</div>
+<button class="hbtn totop" aria-label="Back to top"><svg viewBox="0 0 24 24"><path d="M12 19V5m0 0l-6 6m6-6l6 6"/></svg></button>
+<div class="modal" id="searchModal" role="dialog" aria-label="Search"><div class="search-box">
+<input id="searchInput" type="search" placeholder="Search the lab… (try: Welch, quality, aliasing)" autocomplete="off">
+<ul class="search-results" id="searchResults"></ul></div></div>
+</body>
+</html>
